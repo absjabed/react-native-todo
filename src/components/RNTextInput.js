@@ -15,7 +15,7 @@ const RNTextInput = (props) => {
         secureTextEntry={props.secureTextEntry}
         underlineColorAndroid="transparent"
         placeholder={props.placeholder}
-        placeholderTextColor="#007FFF"
+        placeholderTextColor="#25be7b"
         keyboardType={props.keyboardType}
         onChangeText={props.onChangeText}
         returnKeyType={props.returnKeyType}

@@ -8,7 +8,7 @@ export class SplashScreen extends Component {
   componentDidMount=()=>{
     console.log("splash did mount.")
     setTimeout(()=>{
-      this.props.navigation.navigate('LoginScreen')
+      this.props.navigation.navigate('LoginScreen');
     },1500)
   }
     

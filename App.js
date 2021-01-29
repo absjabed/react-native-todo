@@ -53,6 +53,7 @@ const App = () => {
                     component={SignUpScreen}
                     options={{
                         title: 'Sign Up', //Set Header Title
+                        headerShown: false,
                         headerStyle: {
                         backgroundColor: '#009999', //Set Header color
                         },
@@ -67,6 +68,7 @@ const App = () => {
                     component={HomeScreen}
                     options={{
                         title: 'Home', //Set Header Title
+                        headerShown: false,
                         headerStyle: {
                         backgroundColor: '#009999', //Set Header color
                         },
@@ -81,6 +83,7 @@ const App = () => {
                     component={AddNewScreen}
                     options={{
                         title: 'Add New', //Set Header Title
+                        headerShown: false,
                         headerStyle: {
                         backgroundColor: '#009999', //Set Header color
                         },

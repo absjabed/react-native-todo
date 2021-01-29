@@ -7,8 +7,8 @@ const RNText = (props) => {
 
 const styles = StyleSheet.create({
   text: {
-    color: '#111825',
-    fontSize: 18,
+    color: '#c6c6c7',//'#111825',
+    fontSize: 25,
     marginTop: 16,
     marginLeft: 35,
     marginRight: 35,
