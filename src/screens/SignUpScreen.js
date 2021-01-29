@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Text, View, StyleSheet, Image,Dimensions, SafeAreaView } from 'react-native'
 import {COLORS} from '../styles/colors'
+import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 const screenWidth = Math.round(Dimensions.get('window').width);
 import RNButton from '../components/RNButton'
 import RNTextInput from '../components/RNTextInput'
@@ -24,6 +25,20 @@ export class SignUpScreen extends Component {
           }
           console.log(signupUserOb)
     }
+
+
+    navigateBack = () =>{
+        this.props.navigation.goBack();
+    }
+
+
+    componentDidMount = () =>{
+        handleAndroidBackButton(this.navigateBack);
+    }
+
+    componentWillUnmount() {
+        removeAndroidBackButtonHandler();
+      }
 
     render() {
         return (
@@ -66,12 +81,12 @@ export class SignUpScreen extends Component {
                                 onChangeText={(birthday) => this.setState({birthday})}
                                 labelName="BIRTHDAY"
                             />
-                            <RNButton title="SIGN UP" style={{paddingTop:20}} customClick={this.handleSignup} />
+                            <RNButton title="Sign Up" style={{paddingTop:20}} customClick={this.handleSignup} />
                             <View style={{flex:1, flexDirection:'row', alignItems:'center', justifyContent: 'center'}}>
                                 <Text style={{fontSize: 12,textAlign: 'center',color: '#c3c3c5', fontWeight:'bold'}}>
                                 ALREADY HAVE AN ACCOUNT?
                                 </Text>
-                                <Text onPress={()=> this.props.navigation.navigate('LoginScreen')} style={{fontSize: 12, textAlign: 'center', fontWeight:'bold', color: '#7d7d80'}}>   SIGN IN
+                                <Text onPress={()=> this.props.navigation.goBack()} style={{fontSize: 12, textAlign: 'center', fontWeight:'bold', color: '#7d7d80'}}>   SIGN IN
                                 </Text>
                             </View>
                         </View>

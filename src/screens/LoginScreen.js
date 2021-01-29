@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Dimensions, Image, SafeAreaView} from 'react-native'
+import { Text, View, StyleSheet, Dimensions, Image, SafeAreaView, BackHandler} from 'react-native'
 //import splashStyle from '../styles/ScreenStyles/splashScreen.style'
+import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 import {COLORS} from '../styles/colors'
 import RNButton from '../components/RNButton'
 import RNTextInput from '../components/RNTextInput'
@@ -21,6 +22,19 @@ export class LoginScreen extends Component {
       console.log(userOb)
     }
 
+    navigateBack = () =>{
+        BackHandler.exitApp();
+    }
+
+
+    componentDidMount = () =>{
+        handleAndroidBackButton(this.navigateBack);
+    }
+
+    componentWillUnmount() {
+        //console.log("unmount login")
+        removeAndroidBackButtonHandler();
+      }
     
     render() {
         return (
@@ -49,7 +63,7 @@ export class LoginScreen extends Component {
                                     <Text onPress={()=> alert("Forgot Password!")} style={{fontSize:12, fontWeight:'bold', color:'#c3c3c5'}}>Forgot Password</Text>
                                 </View>
                             </View>
-                            <RNButton title="SIGN IN" style={{paddingTop:20}} customClick={this.handleLogin} />
+                            <RNButton title="Sign In" style={{paddingTop:20}} customClick={this.handleLogin} />
                             <View style={{flex:1, flexDirection:'row', alignItems:'center', justifyContent: 'center'}}>
                                 <Text style={{fontSize: 12,textAlign: 'center',color: '#c3c3c5',fontWeight:'bold'}}>
                                 DON'T HAVE AN ACCOUNT?
