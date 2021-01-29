@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Text, View, StyleSheet, Image,Dimensions, SafeAreaView } from 'react-native'
+import Icon from 'react-native-vector-icons/AntDesign';
 import {COLORS} from '../styles/colors'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 const screenWidth = Math.round(Dimensions.get('window').width);
@@ -45,17 +46,17 @@ export class SignUpScreen extends Component {
             <View style={style.container}>
                 <View style={{flex:.3, width: screenWidth, flexDirection:'column'}}>
                     <View style={{flex:1, flexDirection:'row', paddingTop: 18, justifyContent:'center'}}>
-                        <View style={{position:'absolute', left:15, top: 10, }}>
-                            <Text onPress={()=> this.props.navigation.goBack()} style={{fontSize:25, color:'#c6c6c7'}}>X</Text>
+                        <View style={{position:'absolute', left:15, top: 18, }}>
+                            <Icon onPress={()=> this.props.navigation.goBack()} name="close" size={30} color="#c6c6c7" />
                         </View>
                         <View>
-                            <Text style={{fontSize: 18, color:'#6a6a6e', fontWeight:'bold'}}>Sign up</Text>
+                            <Text style={{fontSize: 18, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .5}}>Sign up</Text>
                         </View>
                     </View>
                     <View style={{flex: 1,flexDirection: 'row',justifyContent: 'center',alignItems:'center'}}>
                         <Image style={style.profileImage} source={require('../assets/images/propic.jpg')}></Image> 
                         <View style={style.imageAddBtn}>
-                            <Text onPress={()=> alert("Add an Image.")} style={style.imageAddBtnTxt}>+</Text>
+                            <Icon onPress={()=> alert("Add an Image.")} name="plus" size={15} color={COLORS.white} />
                         </View>
                     </View>
                 </View>
@@ -86,7 +87,7 @@ export class SignUpScreen extends Component {
                                 <Text style={{fontSize: 12,textAlign: 'center',color: '#c3c3c5', fontWeight:'bold'}}>
                                 ALREADY HAVE AN ACCOUNT?
                                 </Text>
-                                <Text onPress={()=> this.props.navigation.goBack()} style={{fontSize: 12, textAlign: 'center', fontWeight:'bold', color: '#7d7d80'}}>   SIGN IN
+                                <Text onPress={()=> this.props.navigation.goBack()} style={{fontSize: 12, textAlign: 'center', fontWeight:'bold', color: '#7d7d80', letterSpacing:.5}}>   SIGN IN
                                 </Text>
                             </View>
                         </View>
@@ -122,12 +123,6 @@ const style = StyleSheet.create({
         backgroundColor: COLORS.grenish, 
         justifyContent:'center', 
         alignItems:'center'
-    },
-    imageAddBtnTxt:{
-        fontSize:20,
-        fontWeight:'100',
-        textAlign:'center', 
-        color:COLORS.white
     }
   });
 

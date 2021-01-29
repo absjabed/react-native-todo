@@ -15,7 +15,7 @@ export class SplashScreen extends Component {
     render() {
         return (
             <View style={style.container}>
-                <View style={{flex: 1,flexDirection: 'row',justifyContent: 'center',alignItems:'center'}}>
+                <View style={style.imageContainer}>
                     <Image source={require('../assets/images/icons8-checkmark-240.png')}></Image> 
                 </View>
             </View>
@@ -30,6 +30,12 @@ const style = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems:'center'
+    },
+    imageContainer:{
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems:'center'
     }
   });
 

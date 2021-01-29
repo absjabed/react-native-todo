@@ -10,7 +10,7 @@ const RNTextInput = (props) => {
         borderBottomColor: '#f2f2f5',
         borderBottomWidth: 1,
       }}>
-      <Text style={{fontSize:12, fontWeight:'bold', color:'#c3c3c5'}}>{props.labelName}</Text>
+      <Text style={{fontSize:12, fontWeight:'bold', color:'#c3c3c5', letterSpacing: .3}}>{props.labelName}</Text>
       <TextInput
         secureTextEntry={props.secureTextEntry}
         underlineColorAndroid="transparent"

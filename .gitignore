@@ -29,6 +29,10 @@ build/
 local.properties
 *.iml
 
+
+android/
+*.hprof
+
 # node.js
 #
 node_modules/
