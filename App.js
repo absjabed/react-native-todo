@@ -22,6 +22,8 @@ const App = () => {
                     component={SplashScreen}
                     options={{
                         title: 'SplashScreen', //Set Header Title
+                        //header: null,
+                        headerShown: false,
                         headerStyle: {
                         backgroundColor: '#009999', //Set Header color
                         },
@@ -36,6 +38,7 @@ const App = () => {
                     component={LoginScreen}
                     options={{
                         title: 'Login', //Set Header Title
+                        headerShown: false,
                         headerStyle: {
                         backgroundColor: '#009999', //Set Header color
                         },
