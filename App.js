@@ -8,6 +8,7 @@ import LoginScreen from './src/screens/LoginScreen'
 import SignUpScreen from './src/screens/SignUpScreen'
 import HomeScreen from './src/screens/HomeScreen'
 import AddNewScreen from './src/screens/AddNewScreen'
+import UpdateTaskScreen from './src/screens/UpdateTaskScreen'
 // import AuthNavigation from './src/navigation/AuthNavigation'
 // import StackNavigation from './src/navigation/StackNavigation'
 // import DrawerNavigation from './src/navigation/DrawerNavigation'
@@ -83,6 +84,21 @@ const App = () => {
                     component={AddNewScreen}
                     options={{
                         title: 'Add New', //Set Header Title
+                        headerShown: false,
+                        headerStyle: {
+                        backgroundColor: '#009999', //Set Header color
+                        },
+                        headerTintColor: '#fff', //Set Header text color
+                        headerTitleStyle: {
+                        fontWeight: 'bold', //Set Header text style
+                        },
+                    }}
+                />
+                <Stack.Screen
+                    name="UpdateTaskScreen"
+                    component={UpdateTaskScreen}
+                    options={{
+                        title: 'Update Task', //Set Header Title
                         headerShown: false,
                         headerStyle: {
                         backgroundColor: '#009999', //Set Header color
