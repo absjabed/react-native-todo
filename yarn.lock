@@ -6011,11 +6011,6 @@ react-native-masked-text@^1.13.0:
     date-and-time "0.9.0"
     tinymask "1.0.2"
 
-react-native-paper-dates@^0.2.15:
-  version "0.2.15"
-  resolved "https://registry.yarnpkg.com/react-native-paper-dates/-/react-native-paper-dates-0.2.15.tgz#260b00d6a390198e72fa68b9a4139f855dc80673"
-  integrity sha512-Yjv/BGTzOWFkozZqxh1vBxZjf+wjGMG+0PEdbpNMQ0Lt5tAOf/9/mTsLKPnOLbLriqsO2bIs/tkaZojyZtUA1g==
-
 react-native-reanimated@^1.13.2:
   version "1.13.2"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-1.13.2.tgz#1ae5457b24b4913d173a5a064bb28eae7783d293"
