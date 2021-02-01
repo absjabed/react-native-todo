@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Dimensions, SectionList, SafeAreaView, TouchableOpacity, RefreshControl } from 'react-native'
+import { Text, View, StyleSheet, Dimensions, Alert, SectionList, SafeAreaView, TouchableOpacity, RefreshControl } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign';
+import { post } from '../utils/apiUtils';
+import Toast from 'react-native-toast-message';
+import ProgressDialog from '../utils/loader'
 import IIcon from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../styles/colors'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { jsonGroupByFunc } from '../utils/jsonGroupBy';
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
-// <Item itemObj={item} title={item.vTodoTitle} navigation={this.props.navigation} time={item.tTime} location={item.vLocation} isDone={item.bIsDone} colorLabel={'#'+item.vColorLabel.split('#')[1]} />}
-const Item = ({itemObj,navigation}) => (
+
+const Item = ({itemObj,navigation, doneEvent, deleteEvent}) => (
     <View style={{...style.item, borderLeftWidth:5, borderLeftColor: '#'+itemObj.vColorLabel.split('#')[1]}}>
       <View style={{flex:1, flexDirection:'row', justifyContent:'space-between'}}>
           <View style={{flex: .9}}>
@@ -35,7 +38,14 @@ const Item = ({itemObj,navigation}) => (
               </TouchableOpacity>
           </View>
           <View style={{flex: .1, flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
-              {itemObj.bIsDone ? (<IIcon onPress={()=> alert("This Task is Done Already, \nWanna Delete it?")} name="trash-outline" size={30} color="#c6c6c7" />) : <IIcon onPress={()=> alert("Wanna mark this task as done?")} name="checkmark" size={30} color="#c6c6c7" />}
+              {itemObj.bIsDone ? 
+              (<IIcon 
+                  onPress={()=> deleteEvent(itemObj)} 
+                  name="trash-outline" size={30} 
+                  color="#c6c6c7" />) : 
+                (<IIcon 
+                  onPress={()=> doneEvent(itemObj)} 
+                  name="checkmark" size={30} color="#c6c6c7" />)}
           </View>
       </View>
       {/* <Text style={style.title}>{title}</Text> */}
@@ -46,156 +56,158 @@ export class HomeScreen extends Component {
 
     state={
         refreshing: false,
+        loading: false,
+        userInfo: [],
         SectionData: [],
         PreData:
         [
-          {
+          // {
               
-              "iAutoId": 5,
+          //     "iAutoId": 5,
       
-              "vUserId": "absjabed",
+          //     "vUserId": "absjabed",
       
-              "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
+          //     "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
       
-              "vTodoTitle": "Add New Todo 5",
+          //     "vTodoTitle": "Add New Todo 5",
       
-              "vTodoDescription": "Adding New Todo from API",
+          //     "vTodoDescription": "Adding New Todo from API",
       
-              "dDate": "2021-12-28T00:00:00",
+          //     "dDate": "2021-12-28T00:00:00",
       
-              "tTime": "09:00am - 08:30pm",
+          //     "tTime": "09:00am - 08:30pm",
       
-              "vLocation": "Starbucks",
+          //     "vLocation": "Starbucks",
       
-              "tNotifyTime": "30 minutes",
+          //     "tNotifyTime": "30 minutes",
       
-              "vColorLabel": "Grenish#25be7b",
+          //     "vColorLabel": "Grenish#25be7b",
       
-              "bIsDone": true,
+          //     "bIsDone": true,
       
-              "bIsDeleted": false,
+          //     "bIsDeleted": false,
       
-              "dDateOfEntry": "2021-01-28T16:27:54.167"
+          //     "dDateOfEntry": "2021-01-28T16:27:54.167"
       
-            },
+          //   },
       
-            {
+          //   {
       
-              "iAutoId": 3,
+          //     "iAutoId": 3,
       
-              "vUserId": "absjabed",
+          //     "vUserId": "absjabed",
       
-              "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
+          //     "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
       
-              "vTodoTitle": "Add New Todo 3",
+          //     "vTodoTitle": "Add New Todo 3",
       
-              "vTodoDescription": "Adding New Todo from API",
+          //     "vTodoDescription": "Adding New Todo from API",
       
-              "dDate": "2021-12-28T00:00:00",
+          //     "dDate": "2021-12-28T00:00:00",
       
-              "tTime": "9:00am - 08:30pm",
+          //     "tTime": "9:00am - 08:30pm",
       
-              "vLocation": "",
+          //     "vLocation": "",
       
-              "tNotifyTime": "30 minutes",
+          //     "tNotifyTime": "30 minutes",
       
-              "vColorLabel": "Orange#ffa65b",
+          //     "vColorLabel": "Orange#ffa65b",
       
-              "bIsDone": false,
+          //     "bIsDone": false,
       
-              "bIsDeleted": false,
+          //     "bIsDeleted": false,
       
-              "dDateOfEntry": "2021-01-28T16:27:54.167"
+          //     "dDateOfEntry": "2021-01-28T16:27:54.167"
       
-            },
-            {
+          //   },
+          //   {
               
-              "iAutoId": 4,
+          //     "iAutoId": 4,
       
-              "vUserId": "absjabed",
+          //     "vUserId": "absjabed",
       
-              "vTodoId": "405CF7A5-8C95-4DB2-97C9-D8495B3D025A",
+          //     "vTodoId": "405CF7A5-8C95-4DB2-97C9-D8495B3D025A",
       
-              "vTodoTitle": "Automation Script Task 4",
+          //     "vTodoTitle": "Automation Script Task 4",
       
-              "vTodoDescription": "Automation Script needs to be prepared for system backup.",
+          //     "vTodoDescription": "Automation Script needs to be prepared for system backup.",
       
-              "dDate": "2021-12-24T00:00:00",
+          //     "dDate": "2021-12-24T00:00:00",
       
-              "tTime": "08:00pm - 08:30pm",
+          //     "tTime": "08:00pm - 08:30pm",
       
-              "vLocation": "Restaurant",
+          //     "vLocation": "Restaurant",
       
-              "tNotifyTime": "20 minutes",
+          //     "tNotifyTime": "20 minutes",
       
-              "vColorLabel": "Grenish#25be7b",
+          //     "vColorLabel": "Grenish#25be7b",
       
-              "bIsDone": false,
+          //     "bIsDone": false,
       
-              "bIsDeleted": false,
+          //     "bIsDeleted": false,
       
-              "dDateOfEntry": "2021-01-28T09:56:41.14"
+          //     "dDateOfEntry": "2021-01-28T09:56:41.14"
       
-            },
+          //   },
       
-            {
+          //   {
       
-              "iAutoId": 2,
+          //     "iAutoId": 2,
       
-              "vUserId": "absjabed",
+          //     "vUserId": "absjabed",
       
-              "vTodoId": "405CF7A5-8C95-4DB2-97C9-D8495B3D025A",
+          //     "vTodoId": "405CF7A5-8C95-4DB2-97C9-D8495B3D025A",
       
-              "vTodoTitle": "Automation Script Task 2",
+          //     "vTodoTitle": "Automation Script Task 2",
       
-              "vTodoDescription": "Automation Script needs to be prepared for system backup.",
+          //     "vTodoDescription": "Automation Script needs to be prepared for system backup.",
       
-              "dDate": "2021-12-24T00:00:00",
+          //     "dDate": "2021-12-24T00:00:00",
       
-              "tTime": "8:00am - 08:30pm",
+          //     "tTime": "8:00am - 08:30pm",
       
-              "vLocation": "Bar & Grill",
+          //     "vLocation": "Bar & Grill",
       
-              "tNotifyTime": "20 minutes",
+          //     "tNotifyTime": "20 minutes",
       
-              "vColorLabel": "Reddish#dd5858",
+          //     "vColorLabel": "Reddish#dd5858",
       
-              "bIsDone": true,
+          //     "bIsDone": true,
       
-              "bIsDeleted": false,
+          //     "bIsDeleted": false,
       
-              "dDateOfEntry": "2021-01-28T09:56:41.14"
+          //     "dDateOfEntry": "2021-01-28T09:56:41.14"
       
-            },
-            {
+          //   },
+          //   {
               
-              "iAutoId": 6,
+          //     "iAutoId": 6,
       
-              "vUserId": "absjabed",
+          //     "vUserId": "absjabed",
       
-              "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
+          //     "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
       
-              "vTodoTitle": "Add New Todo 3",
+          //     "vTodoTitle": "Add New Todo 3",
       
-              "vTodoDescription": "New Task 6",
+          //     "vTodoDescription": "New Task 6",
       
-              "dDate": "2021-12-21T00:00:00",
+          //     "dDate": "2021-12-21T00:00:00",
       
-              "tTime": "09:00am - 10:30pm",
+          //     "tTime": "09:00am - 10:30pm",
       
-              "vLocation": "Dhaka, BD",
+          //     "vLocation": "Dhaka, BD",
       
-              "tNotifyTime": "30 minutes",
+          //     "tNotifyTime": "30 minutes",
       
-              "vColorLabel": "Violate#818af9",
+          //     "vColorLabel": "Violate#818af9",
       
-              "bIsDone": false,
+          //     "bIsDone": false,
       
-              "bIsDeleted": false,
+          //     "bIsDeleted": false,
       
-              "dDateOfEntry": "2021-01-28T16:27:54.167"
+          //     "dDateOfEntry": "2021-01-28T16:27:54.167"
       
-            }
+          //   }
       ]
 
     }
@@ -206,12 +218,157 @@ export class HomeScreen extends Component {
     }
 
     componentDidMount = () =>{
+        const userRcvd = this.props.route.params;
 
-        var processedData = jsonGroupByFunc(this.state.PreData, 'dDate');
-
-        this.setState({SectionData: processedData});
+        this.setState({refreshing: true, userInfo: userRcvd},()=>{
+            this.loadUserTodos();
+        })
 
         handleAndroidBackButton(this.navigateBack);
+    }
+
+    handleTaskDelete=(obj)=>{
+      var deleteReqObj ={
+        "vUserId": this.state.userInfo.vUserId,
+        "vTodoId": obj.vTodoId
+      }
+      Alert.alert(
+        'Delete Task!',
+        'This task already done. Do you wanna Delete it Now?',
+        [
+          {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
+          {text: 'YES', onPress: () => this.setState({refreshing: true},()=>{
+
+            post('/DeleteTodo', deleteReqObj)
+            .then(response => {
+              
+              var responseData = response.data;
+
+                if(responseData.deletedStatus.isSucceeed){
+                    Toast.show({
+                        type: 'success',
+                        position: 'bottom',
+                        text1: responseData.deletedStatus.vMessage,
+                        visibilityTime: 1000,
+                        })
+                        this.loadUserTodos();
+                }else{
+                  this.setState({refreshing: false}, ()=>{
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Something wrong!',
+                        text2: errorMessage
+                        })
+                }); 
+                }
+    
+            })
+            .catch(errorMessage => {   
+                this.setState({refreshing: false}, ()=>{
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Something wrong!',
+                        text2: errorMessage
+                        })
+                }); 
+            });
+          })},
+        ]
+      );
+    }
+
+    handleTaskDone=(obj)=>{
+      var doneReqObj ={
+        "vUserId": this.state.userInfo.vUserId,
+        "vTodoId": obj.vTodoId
+      }
+      Alert.alert(
+        'Task Done!',
+        'You want to mark this task as Done?',
+        [
+          {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
+          {text: 'YES', onPress: () => this.setState({refreshing: true},()=>{
+
+            post('/DoneTodo', doneReqObj)
+            .then(response => {
+              
+              var responseData = response.data;
+
+                if(responseData.doneStatus.isSucceeed){
+                    Toast.show({
+                        type: 'success',
+                        position: 'bottom',
+                        text1: responseData.doneStatus.vMessage,
+                        visibilityTime: 1000,
+                        })
+                        this.loadUserTodos();
+                }else{
+                  this.setState({refreshing: false}, ()=>{
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Something wrong!',
+                        text2: errorMessage
+                        })
+                }); 
+                }
+    
+            })
+            .catch(errorMessage => {   
+                this.setState({refreshing: false}, ()=>{
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Something wrong!',
+                        text2: errorMessage
+                        })
+                }); 
+            });
+          })},
+        ]
+      );
+    }
+
+    loadUserTodos=()=>{
+        const userObj = {
+          "VUserId": this.state.userInfo.vUserId
+        }
+
+        post('/UserTodos', userObj)
+              .then(response => {
+                
+                var responseData = response.data;
+
+                  this.setState({refreshing: false, PreData: responseData}, ()=>{
+                  if(responseData.length > 0){
+                      Toast.show({
+                          type: 'success',
+                          position: 'bottom',
+                          text1: 'All ToDos loaded from server!.',
+                          visibilityTime: 1000,
+                          })
+
+                          var processedData = jsonGroupByFunc(this.state.PreData, 'dDate');
+
+                          this.setState({SectionData: processedData});
+                  }else{
+                      Toast.show({
+                          type: 'info',
+                          position: 'bottom',
+                          text1: 'You dont have any task yet!.',
+                          visibilityTime: 1000,
+                          })
+                  }
+                  });
+      
+              })
+              .catch(errorMessage => {   
+                  this.setState({refreshing: false}, ()=>{
+                      Toast.show({
+                          type: 'error',
+                          text1: 'Something wrong!',
+                          text2: errorMessage
+                          })
+                  }); 
+              });
     }
 
     componentWillUnmount() {
@@ -244,12 +401,13 @@ export class HomeScreen extends Component {
                             <SectionList
                             sections={this.state.SectionData}
                             refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={()=>  this.setState({refreshing: true},()=>{
-                              setTimeout(()=>{
-                                this.setState({refreshing: false})
-                              },1500)
+                                this.loadUserTodos();
+                              // setTimeout(()=>{
+                              //   this.setState({refreshing: false})
+                              // },1500)
                             })} />}
                             keyExtractor={(item, index) => item.iAutoId + index}
-                            renderItem={({ item }) => <Item itemObj={item} title={item.vTodoTitle} navigation={this.props.navigation} time={item.tTime} location={item.vLocation} isDone={item.bIsDone} colorLabel={'#'+item.vColorLabel.split('#')[1]} />}
+                            renderItem={({ item }) => <Item itemObj={item} navigation={this.props.navigation} doneEvent={this.handleTaskDone} deleteEvent={this.handleTaskDelete} />}
                             renderSectionHeader={({ section: { title } }) => (
                                 <Text style={style.header}>{title}</Text>
                             )}

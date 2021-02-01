@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Modal, ActivityIndicator } from 'react-native';
-//https://medium.com/@kelleyannerose/react-native-activityindicator-for-a-quick-easy-loading-animation-593c06c044dc
 const ProgressDialog = props => {
   const {
     loading,

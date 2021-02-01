@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Text, View, StyleSheet, Dimensions, Image, SafeAreaView, BackHandler} from 'react-native'
 import { post } from '../utils/apiUtils';
+import Toast from 'react-native-toast-message';
+import ProgressDialog from '../utils/loader'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 import {COLORS} from '../styles/colors'
 import RNButton from '../components/RNButton'
@@ -15,20 +17,47 @@ export class LoginScreen extends Component {
     }
 
     handleLogin = () =>{
-        const userOb = {
-          "VUserId": this.state.username,
-          "VPassword": this.state.password
-      }
-
-        post('/Authenticate', userOb)
-        .then(response => {
-            console.log('login data', response.data);
-        })
-        .catch(errorMessage => {    
-            console.log('login data', errorMessage);
+        this.setState({loading: true},()=>{
+            const userOb = {
+                "VUserId": this.state.username,
+                "VPassword": this.state.password
+            }
+              post('/Authenticate', userOb)
+              .then(response => {
+      
+                  this.setState({loading: false}, ()=>{
+                      var responseData = response.data;
+                  if(responseData.isAuthenticated){
+                      Toast.show({
+                          type: 'success',
+                          position: 'bottom',
+                          text1: 'Successed!',
+                          text2: responseData.vMessage+'👋',
+                          visibilityTime: 1000,
+                          })
+                      this.props.navigation.navigate('HomeScreen', responseData.userObj);
+                  }else{
+                      Toast.show({
+                          type: 'error',
+                          position: 'bottom',
+                          text1: 'Error!',
+                          text2: responseData.vMessage,
+                          visibilityTime: 1000,
+                          })
+                  }
+                  });
+      
+              })
+              .catch(errorMessage => {   
+                  this.setState({loading: false}, ()=>{
+                      Toast.show({
+                          type: 'error',
+                          text1: 'Error!',
+                          text2: errorMessage
+                          })
+                  }); 
+              });
         });
-      //this.props.navigation.navigate('HomeScreen')
-      //console.log(userOb)
     }
 
     navigateBack = () =>{
@@ -41,13 +70,14 @@ export class LoginScreen extends Component {
     }
 
     componentWillUnmount() {
-        //console.log("unmount login")
         removeAndroidBackButtonHandler();
       }
     
     render() {
         return (
             <View style={style.container}>
+                <ProgressDialog
+                loading={this.state.loading} />
                 <View style={style.imageContainer}>
                     <Image source={require('../assets/images/icons8-checkmark-240.png')}></Image> 
                 </View>
