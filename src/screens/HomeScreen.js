@@ -6,28 +6,28 @@ import {COLORS} from '../styles/colors'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { jsonGroupByFunc } from '../utils/jsonGroupBy';
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
-
-const Item = ({ title, navigation, isDone, time, location, colorLabel }) => (
-    <View style={{...style.item, borderLeftWidth:5, borderLeftColor: colorLabel}}>
+// <Item itemObj={item} title={item.vTodoTitle} navigation={this.props.navigation} time={item.tTime} location={item.vLocation} isDone={item.bIsDone} colorLabel={'#'+item.vColorLabel.split('#')[1]} />}
+const Item = ({itemObj,navigation}) => (
+    <View style={{...style.item, borderLeftWidth:5, borderLeftColor: '#'+itemObj.vColorLabel.split('#')[1]}}>
       <View style={{flex:1, flexDirection:'row', justifyContent:'space-between'}}>
           <View style={{flex: .9}}>
-            <TouchableOpacity onPress={()=> navigation.navigate("UpdateTaskScreen")}>
+            <TouchableOpacity onPress={()=> navigation.navigate("UpdateTaskScreen", itemObj)}>
               <View style={{flex:1, flexDirection:'column'}}>
                   <View style={{flex:.5, paddingBottom:15}}>
-                        <Text style={isDone ? {...style.title, color:'#bbbbbd'} : style.title}>{title}</Text> 
+                        <Text style={itemObj.bIsDone ? {...style.title, color:'#bbbbbd'} : style.title}>{itemObj.vTodoTitle}</Text> 
                   </View>
                   <View style={{flex:.5}}>
                       <View style={{flex:1, flexDirection:'row', justifyContent:'flex-start'}}>
-                      {time ? 
+                      {itemObj.tTime ? 
                           (<View style={{flexDirection:'row'}}>
-                            <Icon style={{paddingRight:5}} size={15} color={isDone? '#bbbbbd':"#7b7b7f"} name='clockcircleo'/>
-                            <Text style={{fontSize:10.5, color: isDone? '#bbbbbd':'#68686b'}}>{time}</Text>
+                            <Icon style={{paddingRight:5}} size={15} color={itemObj.bIsDone? '#bbbbbd':"#7b7b7f"} name='clockcircleo'/>
+                            <Text style={{fontSize:10.5, color: itemObj.bIsDone? '#bbbbbd':'#68686b'}}>{itemObj.tTime}</Text>
                           </View>) : <></> }
                           
-                          {location ? 
+                          {itemObj.vLocation ? 
                           (<View style={{flexDirection:'row'}}>
-                              <IIcon style={{paddingLeft:5, paddingRight:3}} size={15} color={isDone? '#bbbbbd':"#7b7b7f"} name='md-location-outline'/>
-                              <Text style={{fontSize:10.5, color:isDone? '#bbbbbd':'#68686b'}}>{location}</Text>
+                              <IIcon style={{paddingLeft:5, paddingRight:3}} size={15} color={itemObj.bIsDone? '#bbbbbd':"#7b7b7f"} name='md-location-outline'/>
+                              <Text style={{fontSize:10.5, color:itemObj.bIsDone? '#bbbbbd':'#68686b'}}>{itemObj.vLocation}</Text>
                           </View>) : <></> }
                       </View>
                   </View>
@@ -35,7 +35,7 @@ const Item = ({ title, navigation, isDone, time, location, colorLabel }) => (
               </TouchableOpacity>
           </View>
           <View style={{flex: .1, flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
-              {isDone ? (<IIcon onPress={()=> alert("This Task is Done Already, \nWanna Delete it?")} name="trash-outline" size={30} color="#c6c6c7" />) : <IIcon onPress={()=> alert("Wanna mark this task as done?")} name="checkmark" size={30} color="#c6c6c7" />}
+              {itemObj.bIsDone ? (<IIcon onPress={()=> alert("This Task is Done Already, \nWanna Delete it?")} name="trash-outline" size={30} color="#c6c6c7" />) : <IIcon onPress={()=> alert("Wanna mark this task as done?")} name="checkmark" size={30} color="#c6c6c7" />}
           </View>
       </View>
       {/* <Text style={style.title}>{title}</Text> */}
@@ -63,7 +63,7 @@ export class HomeScreen extends Component {
       
               "dDate": "2021-12-28T00:00:00",
       
-              "tTime": "9 - 08:30pm",
+              "tTime": "09:00am - 08:30pm",
       
               "vLocation": "Starbucks",
       
@@ -93,7 +93,7 @@ export class HomeScreen extends Component {
       
               "dDate": "2021-12-28T00:00:00",
       
-              "tTime": "9 - 08:30pm",
+              "tTime": "9:00am - 08:30pm",
       
               "vLocation": "",
       
@@ -122,7 +122,7 @@ export class HomeScreen extends Component {
       
               "dDate": "2021-12-24T00:00:00",
       
-              "tTime": "8 - 8:30pm",
+              "tTime": "08:00pm - 08:30pm",
       
               "vLocation": "Restaurant",
       
@@ -152,13 +152,13 @@ export class HomeScreen extends Component {
       
               "dDate": "2021-12-24T00:00:00",
       
-              "tTime": "8 - 08:30pm",
+              "tTime": "8:00am - 08:30pm",
       
               "vLocation": "Bar & Grill",
       
               "tNotifyTime": "20 minutes",
       
-              "vColorLabel": "Teal#29cfbf",
+              "vColorLabel": "Reddish#dd5858",
       
               "bIsDone": true,
       
@@ -181,13 +181,13 @@ export class HomeScreen extends Component {
       
               "dDate": "2021-12-21T00:00:00",
       
-              "tTime": "9 - 10:30pm",
+              "tTime": "09:00am - 10:30pm",
       
               "vLocation": "Dhaka, BD",
       
               "tNotifyTime": "30 minutes",
       
-              "vColorLabel": "Teal#29cfbf",
+              "vColorLabel": "Violate#818af9",
       
               "bIsDone": false,
       
@@ -249,7 +249,7 @@ export class HomeScreen extends Component {
                               },1500)
                             })} />}
                             keyExtractor={(item, index) => item.iAutoId + index}
-                            renderItem={({ item }) => <Item title={item.vTodoTitle} navigation={this.props.navigation} time={item.tTime} location={item.vLocation} isDone={item.bIsDone} colorLabel={'#'+item.vColorLabel.split('#')[1]} />}
+                            renderItem={({ item }) => <Item itemObj={item} title={item.vTodoTitle} navigation={this.props.navigation} time={item.tTime} location={item.vLocation} isDone={item.bIsDone} colorLabel={'#'+item.vColorLabel.split('#')[1]} />}
                             renderSectionHeader={({ section: { title } }) => (
                                 <Text style={style.header}>{title}</Text>
                             )}

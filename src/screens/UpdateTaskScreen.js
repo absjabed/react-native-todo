@@ -11,20 +11,22 @@ import RNPicker from '../components/RNPicker'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 
-const colors = [{label: "Teal", value: COLORS.teal}, {label: "Orange", value: COLORS.darkOrange}, {label: "Green", value: COLORS.grenish}, {label: "Violate", value: COLORS.violate}];
+const colors = [{label: "Reddish", value: COLORS.reddish}, {label: "Orange", value: COLORS.darkOrange}, {label: "Green", value: COLORS.grenish}, {label: "Violate", value: COLORS.violate}];
 
 export class UpdateTaskScreen extends Component {
     
     state={
+        receivedObject: [],
+        userId:"absjabed",
+        todoId: "88AEB394-F1A1-484E-A200-65581C80B32D",
         title: "Todo Task Title",
         description:"This is the description of todo task...",
-        todoId: "88AEB394-F1A1-484E-A200-65581C80B32D",
         date: "2021-02-03",
         fromTime:"08:00am",
         toTime:"09:00am",
         location:'Starbucks',
         notifyTime: '20 minutes',
-        labelColor:'Teal#29cfbf',
+        labelColor:'Reddish#dd5858',
         selectedColorObj: colors[0],
         selectedColorLabel:colors[0].label,
         selectedColorValue: colors[0].value
@@ -45,7 +47,7 @@ export class UpdateTaskScreen extends Component {
             "vTodoTitle": this.state.title,
             "vTodoDescription": this.state.description,
             "dDate": this.state.date,
-            "tTime": this.state.fromTime+"#"+this.state.toTime,
+            "tTime": this.state.fromTime+" - "+this.state.toTime,
             "vLocation": this.state.location,
             "tNotifyTime": this.state.notifyTime,
             "vColorLabel": colName+this.state.selectedColorValue
@@ -59,8 +61,34 @@ export class UpdateTaskScreen extends Component {
     }
 
     componentDidMount = () =>{
+        const todoRcvd = this.props.route.params;
+        this.setState({
+            receivedObject: todoRcvd,
+            userId: todoRcvd.vUserId,
+            title: todoRcvd.vTodoTitle,
+            description:todoRcvd.vTodoDescription,
+            todoId: todoRcvd.vTodoId,
+            date: todoRcvd.dDate,
+            fromTime:todoRcvd.tTime.split(' - ')[0],
+            toTime:todoRcvd.tTime.split(' - ')[1],
+            location:todoRcvd.vLocation,
+            notifyTime: todoRcvd.tNotifyTime,
+            labelColor:todoRcvd.vColorLabel,
+            selectedColorObj: colors.filter(x => x.value === '#'+todoRcvd.vColorLabel.split('#')[1])[0],
+            selectedColorLabel:colors.filter(x => x.value === '#'+todoRcvd.vColorLabel.split('#')[1])[0].label,
+            selectedColorValue: colors.filter(x => x.value === '#'+todoRcvd.vColorLabel.split('#')[1])[0].value
+
+        },()=>{
+
+            // var colObj = colors.filter(x => x.value === todoRcvd.vColorLabel.split('#')[1])[0];
+            // console.log('colObj',colObj);
+            // var colName = colors.filter(x => x.value === todoRcvd.vColorLabel.split('#')[1])[0].label;
+            // console.log('colName', colName)
+
+            console.log('todoReceived', this.state.receivedObject)
+        })
         handleAndroidBackButton(this.navigateBack);
-        setTimeout(() => this.setState({ oldColor: '#fdd835' }), 1000);
+        //setTimeout(() => this.setState({ oldColor: '#fdd835' }), 1000);
     }
 
     changeColor = colorRgb => this.setState({ oldColor: colorRgb },()=> console.log(colorRgb))
@@ -131,6 +159,7 @@ export class UpdateTaskScreen extends Component {
                                             keyboardType="numbers-and-punctuation"
                                             placeholder={moment().format('HH:mm')}
                                             placeholderTextColor="#25be7b"
+                                            // {fromTime : moment(fromTime, 'HH:mma').format('HH:mma')}
                                             value={this.state.fromTime}
                                             onChangeText={(fromTime) => this.setState({fromTime})}
                                             style={{color:'#66666a', width: screenWidth*.40}}
@@ -167,7 +196,7 @@ export class UpdateTaskScreen extends Component {
                                                 style={{color:'#66666a', fontSize: 14}}
                                                 //placeholder="e.g: May 15, 1993"
                                                 onChangeText={(notifyTime) => this.setState({notifyTime})}
-                                                value = {this.state.title}
+                                                value = {this.state.notifyTime}
                                                 labelName="NOTIFY"
                                             />
                                             <IIcon style={{position:'absolute', right:0, bottom: 0, marginBottom: 10}} size={20} color={"#7b7b7f"} name='md-notifications-outline'/>

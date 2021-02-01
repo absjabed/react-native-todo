@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Text, View, StyleSheet, Dimensions, Image, SafeAreaView, BackHandler} from 'react-native'
-//import splashStyle from '../styles/ScreenStyles/splashScreen.style'
+import { post } from '../utils/apiUtils';
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 import {COLORS} from '../styles/colors'
 import RNButton from '../components/RNButton'
@@ -9,17 +9,26 @@ const screenWidth = Math.round(Dimensions.get('window').width);
 
 export class LoginScreen extends Component {
     state={
-        username: 'userid',
-        password: 'pass'
+        username: 'absjabed',
+        password: 'todo123',
+        loading: false,
     }
 
     handleLogin = () =>{
         const userOb = {
-          "username": this.state.username,
-          "password": this.state.password
+          "VUserId": this.state.username,
+          "VPassword": this.state.password
       }
-      this.props.navigation.navigate('HomeScreen')
-      console.log(userOb)
+
+        post('/Authenticate', userOb)
+        .then(response => {
+            console.log('login data', response.data);
+        })
+        .catch(errorMessage => {    
+            console.log('login data', errorMessage);
+        });
+      //this.props.navigation.navigate('HomeScreen')
+      //console.log(userOb)
     }
 
     navigateBack = () =>{
@@ -48,12 +57,14 @@ export class LoginScreen extends Component {
                         <View style={style.formContainer}>
                             <RNTextInput
                                 onChangeText={(username) => this.setState({username})}
+                                value={this.state.username}
                                 labelName="USERNAME"
                                 maxLength={20}
                             />
                             <View style={{flex:1}}>
                                 <View style={{flex:1}}>
                                     <RNTextInput
+                                    value={this.state.password}
                                     onChangeText={(password) => this.setState({password})}
                                     labelName="PASSWORD"
                                     secureTextEntry

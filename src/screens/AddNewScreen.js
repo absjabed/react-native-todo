@@ -4,18 +4,21 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import Toast from 'react-native-toast-message';
 import moment from 'moment'
 import {COLORS} from '../styles/colors'
-import IIcon from 'react-native-vector-icons/Ionicons';//md-notifications-outline  md-location-outline https://www.npmjs.com/package/react-native-material-color-picker
+import IIcon from 'react-native-vector-icons/Ionicons';
 import RNTextInput from '../components/RNTextInput'
 import RNMaskTextInput from '../components/RNMaskTextInput'
 import RNPicker from '../components/RNPicker'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 
-const colors = [{label: "Teal", value: COLORS.teal}, {label: "Orange", value: COLORS.darkOrange}, {label: "Green", value: COLORS.grenish}, {label: "Violate", value: COLORS.violate}];
+const colors = [{label: "Reddish", value: COLORS.reddish}, {label: "Orange", value: COLORS.darkOrange}, {label: "Green", value: COLORS.grenish}, {label: "Violate", value: COLORS.violate}];
 
 export class AddNewScreen extends Component {
     
     state={
+        receivedObject: [],
+        userId:"absjabed",
+        todoId: "88AEB394-F1A1-484E-A200-65581C80B32D",
         title: "Todo Task Title",
         description:"This is the description of todo task...",
         date: "2021-02-03",
@@ -23,7 +26,7 @@ export class AddNewScreen extends Component {
         toTime:"09:00am",
         location:'Starbucks',
         notifyTime: '20 minutes',
-        labelColor:'Teal#29cfbf',
+        labelColor:'Reddish#dd5858',
         selectedColorObj: colors[0],
         selectedColorLabel:colors[0].label,
         selectedColorValue: colors[0].value
@@ -52,14 +55,14 @@ export class AddNewScreen extends Component {
         console.log(todoObj)
 
         Toast.show({
-            text1: 'Hello',
-            text2: 'This is some something 👋'
+            type: 'success',
+            text1: 'Success',
+            text2: 'New Todo Added 👋'
             })
     }
 
     componentDidMount = () =>{
         handleAndroidBackButton(this.navigateBack);
-        setTimeout(() => this.setState({ oldColor: '#fdd835' }), 1000);
     }
 
     changeColor = colorRgb => this.setState({ oldColor: colorRgb },()=> console.log(colorRgb))
@@ -130,6 +133,7 @@ export class AddNewScreen extends Component {
                                             keyboardType="numbers-and-punctuation"
                                             placeholder={moment().format('HH:mm')}
                                             placeholderTextColor="#25be7b"
+                                            // {fromTime : moment(fromTime, 'HH:mma').format('HH:mma')}
                                             value={this.state.fromTime}
                                             onChangeText={(fromTime) => this.setState({fromTime})}
                                             style={{color:'#66666a', width: screenWidth*.40}}
@@ -166,7 +170,7 @@ export class AddNewScreen extends Component {
                                                 style={{color:'#66666a', fontSize: 14}}
                                                 //placeholder="e.g: May 15, 1993"
                                                 onChangeText={(notifyTime) => this.setState({notifyTime})}
-                                                value = {this.state.title}
+                                                value = {this.state.notifyTime}
                                                 labelName="NOTIFY"
                                             />
                                             <IIcon style={{position:'absolute', right:0, bottom: 0, marginBottom: 10}} size={20} color={"#7b7b7f"} name='md-notifications-outline'/>
@@ -219,3 +223,5 @@ const style = StyleSheet.create({
 
 
 export default AddNewScreen
+
+
