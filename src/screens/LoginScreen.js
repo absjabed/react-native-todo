@@ -11,8 +11,8 @@ const screenWidth = Math.round(Dimensions.get('window').width);
 
 export class LoginScreen extends Component {
     state={
-        username: 'absjabed',
-        password: 'todo123',
+        username: '',
+        password: '',
         loading: false,
     }
 

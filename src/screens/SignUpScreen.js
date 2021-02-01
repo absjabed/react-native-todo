@@ -1,30 +1,73 @@
 import React, { Component } from 'react'
 import { Text, View, StyleSheet, Image,Dimensions, SafeAreaView } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign';
+import { post } from '../utils/apiUtils';
+import Toast from 'react-native-toast-message';
+import ProgressDialog from '../utils/loader'
 import {COLORS} from '../styles/colors'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 const screenWidth = Math.round(Dimensions.get('window').width);
 import RNButton from '../components/RNButton'
+import RNMaskTextInput from '../components/RNMaskTextInput'
 import RNTextInput from '../components/RNTextInput'
 export class SignUpScreen extends Component {
 
     state={
-        fullName: "fullname",
-        email:"email",
-        password: "pass",
-        birthday:""
+        fullName: "",
+        email:"",
+        password: "",
+        birthday:"",
+        loading: false
     }
 
     handleSignup = () =>{
-        
+        this.setState({loading: true},()=>{
             const signupUserOb = {
-              "fullName": this.state.fullName,
-              "email": this.state.email,
-              "password": this.state.password,
-              "birthday": this.state.birthday
-
-          }
-          console.log(signupUserOb)
+                "VFullName": this.state.fullName,
+                "VUserId": this.state.email,
+                "VPassword": this.state.password,
+                "DDateOfBirth": this.state.birthday
+  
+            }
+            console.log(signupUserOb)
+  
+  
+            post('/SignUp', signupUserOb)
+                .then(response => {
+        
+                    this.setState({loading: false}, ()=>{
+                        var responseData = response.data;
+                    if(responseData.isRegistrationSucceed && responseData.isAuthenticated){
+                        Toast.show({
+                            type: 'success',
+                            position: 'bottom',
+                            text1: 'Successed!',
+                            text2: responseData.vMessage+'👋',
+                            visibilityTime: 1000,
+                            })
+                        this.props.navigation.navigate('HomeScreen', responseData.userObj);
+                    }else{
+                        Toast.show({
+                            type: 'error',
+                            position: 'bottom',
+                            text1: 'Error!',
+                            text2: responseData.vMessage,
+                            visibilityTime: 1000,
+                            })
+                    }
+                    });
+        
+                })
+                .catch(errorMessage => {   
+                    this.setState({loading: false}, ()=>{
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error!',
+                            text2: errorMessage
+                            })
+                    }); 
+                });
+        })
     }
 
 
@@ -44,6 +87,8 @@ export class SignUpScreen extends Component {
     render() {
         return (
             <View style={style.container}>
+                <ProgressDialog
+                loading={this.state.loading} />
                 <View style={{flex:.3, width: screenWidth, flexDirection:'column'}}>
                     <View style={{flex:1, flexDirection:'row', paddingTop: 18, justifyContent:'center'}}>
                         <View style={{position:'absolute', left:15, top: 18, }}>
@@ -65,23 +110,39 @@ export class SignUpScreen extends Component {
                     <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white'}}>
                         <View style={{flex: 1, flexDirection:'column', width: screenWidth*0.9}}>
                             <RNTextInput
+                                value={this.state.fullName}
                                 onChangeText={(fullName) => this.setState({fullName})}
                                 labelName="FULL NAME"
                             />
                             <RNTextInput
+                                value={this.state.email}
                                 onChangeText={(email) => this.setState({email})}
                                 labelName="EMAIL"
-                                maxLength={20}
                             />
                             <RNTextInput
+                                value={this.state.password}
                                 onChangeText={(password) => this.setState({password})}
+                                secureTextEntry
                                 labelName="PASSWORD"
                             />
-                            <RNTextInput
+                            <RNMaskTextInput
+                                    labelName="BIRTHDAY"
+                                    type={'datetime'}
+                                    options={{
+                                        format: 'YYYY-MM-DD'
+                                      }}
+                                    placeholder="1992-02-29"
+                                    placeholderTextColor="#25be7b"
+                                    value={this.state.birthday}
+                                    onChangeText={(birthday) => this.setState({birthday})}
+                                    //style={{color:'#66666a'}}
+                                    />
+                            {/* <RNTextInput
+                                value={this.state.birthday}
                                 placeholder="e.g: May 15, 1993"
                                 onChangeText={(birthday) => this.setState({birthday})}
                                 labelName="BIRTHDAY"
-                            />
+                            /> */}
                             <RNButton title="Sign Up" style={{paddingTop:20}} customClick={this.handleSignup} />
                             <View style={{flex:1, flexDirection:'row', alignItems:'center', justifyContent: 'center'}}>
                                 <Text style={{fontSize: 12,textAlign: 'center',color: '#c3c3c5', fontWeight:'bold'}}>

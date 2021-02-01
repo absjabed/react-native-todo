@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { Text, View, Dimensions, StyleSheet, SafeAreaView } from 'react-native'
+import { Text, View, Dimensions, StyleSheet, SafeAreaView, Alert } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign';
 import Toast from 'react-native-toast-message';
 import moment from 'moment'
+import { post } from '../utils/apiUtils';
+import ProgressDialog from '../utils/loader'
 import {COLORS} from '../styles/colors'
 import IIcon from 'react-native-vector-icons/Ionicons';
 import RNTextInput from '../components/RNTextInput'
@@ -17,6 +19,7 @@ export class UpdateTaskScreen extends Component {
     
     state={
         receivedObject: [],
+        loading: false,
         userId:"absjabed",
         todoId: "88AEB394-F1A1-484E-A200-65581C80B32D",
         title: "Todo Task Title",
@@ -42,8 +45,8 @@ export class UpdateTaskScreen extends Component {
         var colName = colors.filter(x => x.value === this.state.selectedColorValue)[0].label;
         var todoObj = 
         {
-            "vUserId": "absjabed",
-            "vTodoId":"88AEB394-F1A1-484E-A200-65581C80B32D",
+            "vUserId": this.state.receivedObject.vUserId,
+            "vTodoId":this.state.receivedObject.vTodoId,
             "vTodoTitle": this.state.title,
             "vTodoDescription": this.state.description,
             "dDate": this.state.date,
@@ -53,11 +56,49 @@ export class UpdateTaskScreen extends Component {
             "vColorLabel": colName+this.state.selectedColorValue
         }
         console.log(todoObj)
-
-        Toast.show({
-            text1: 'Hello',
-            text2: 'This is some something 👋'
-            })
+        Alert.alert(
+            'Update Task!',
+            'Do you want to update this task it Now?',
+            [
+              {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
+              {text: 'YES', onPress: () => this.setState({loading: true},()=>{
+    
+                post('/UpdateTodo', todoObj)
+                .then(response => {
+                  
+                  var responseData = response.data;
+    
+                    if(responseData.updatedStatus.isSucceeed){
+                        Toast.show({
+                            type: 'success',
+                            position: 'bottom',
+                            text1: responseData.updatedStatus.vMessage,
+                            visibilityTime: 1000,
+                            })
+                            this.props.navigation.goBack();
+                    }else{
+                      this.setState({loading: false}, ()=>{
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Something wrong!',
+                            text2: responseData.updatedStatus.vMessage,
+                            })
+                    }); 
+                    }
+        
+                })
+                .catch(errorMessage => {   
+                    this.setState({loading: false}, ()=>{
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Something wrong!',
+                            text2: errorMessage
+                            })
+                    }); 
+                });
+              })},
+            ]
+          );
     }
 
     componentDidMount = () =>{
@@ -80,11 +121,6 @@ export class UpdateTaskScreen extends Component {
 
         },()=>{
 
-            // var colObj = colors.filter(x => x.value === todoRcvd.vColorLabel.split('#')[1])[0];
-            // console.log('colObj',colObj);
-            // var colName = colors.filter(x => x.value === todoRcvd.vColorLabel.split('#')[1])[0].label;
-            // console.log('colName', colName)
-
             console.log('todoReceived', this.state.receivedObject)
         })
         handleAndroidBackButton(this.navigateBack);
@@ -100,6 +136,8 @@ export class UpdateTaskScreen extends Component {
     render() {
         return (
             <View style={style.container}>
+                <ProgressDialog
+                loading={this.state.loading} />
                 <View style={{flex:.1, width: screenWidth, flexDirection:'column'}}>
                     <View style={{flex:1, flexDirection:'row', paddingTop: 18, paddingLeft:10, paddingRight:10, justifyContent:'space-between'}}>
                         <View>

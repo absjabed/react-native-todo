@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
-import { Text, View, Dimensions, StyleSheet, SafeAreaView } from 'react-native'
+import { Text, View, Dimensions, StyleSheet, SafeAreaView, Alert } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign';
 import Toast from 'react-native-toast-message';
+import { post } from '../utils/apiUtils';
+import ProgressDialog from '../utils/loader'
 import moment from 'moment'
 import {COLORS} from '../styles/colors'
 import IIcon from 'react-native-vector-icons/Ionicons';
@@ -17,8 +19,8 @@ export class AddNewScreen extends Component {
     
     state={
         receivedObject: [],
-        userId:"absjabed",
-        todoId: "88AEB394-F1A1-484E-A200-65581C80B32D",
+        loading: false,
+        userId:"",
         title: "Todo Task Title",
         description:"This is the description of todo task...",
         date: "2021-02-03",
@@ -42,11 +44,11 @@ export class AddNewScreen extends Component {
         var colName = colors.filter(x => x.value === this.state.selectedColorValue)[0].label;
         var todoObj = 
         {
-            "vUserId": "absjabed",
+            "vUserId": this.state.userId,
             "vTodoTitle": this.state.title,
             "vTodoDescription": this.state.description,
             "dDate": this.state.date,
-            "tTime": this.state.fromTime+"#"+this.state.toTime,
+            "tTime": this.state.fromTime+" - "+this.state.toTime,
             "vLocation": this.state.location,
             "tNotifyTime": this.state.notifyTime,
             "vColorLabel": colName+this.state.selectedColorValue
@@ -54,18 +56,62 @@ export class AddNewScreen extends Component {
 
         console.log(todoObj)
 
-        Toast.show({
-            type: 'success',
-            text1: 'Success',
-            text2: 'New Todo Added 👋'
-            })
+        Alert.alert(
+            'Add New Task!',
+            'Do you want to add this task for you?',
+            [
+              {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
+              {text: 'YES', onPress: () => this.setState({loading: true},()=>{
+    
+                post('/AddTodo', todoObj)
+                .then(response => {
+                  
+                  var responseData = response.data;
+    
+                    if(responseData.addedStatus.isSucceeed){
+                        Toast.show({
+                            type: 'success',
+                            position: 'bottom',
+                            text1: responseData.addedStatus.vMessage,
+                            visibilityTime: 1000,
+                            })
+                            this.props.navigation.goBack();
+                    }else{
+                      this.setState({loading: false}, ()=>{
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Something wrong!',
+                            text2: responseData.addedStatus.vMessage,
+                            })
+                    }); 
+                    }
+        
+                })
+                .catch(errorMessage => {   
+                    this.setState({loading: false}, ()=>{
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Something wrong!',
+                            text2: errorMessage
+                            })
+                    }); 
+                });
+              })},
+            ]
+          );
     }
 
     componentDidMount = () =>{
+        const todoRcvd = this.props.route.params;
+        this.setState({
+            receivedObject: todoRcvd,
+            userId: todoRcvd.vUserId
+        },()=>{
+
+            console.log('todoReceived', this.state.receivedObject)
+        })
         handleAndroidBackButton(this.navigateBack);
     }
-
-    changeColor = colorRgb => this.setState({ oldColor: colorRgb },()=> console.log(colorRgb))
 
     componentWillUnmount() {
         removeAndroidBackButtonHandler();
@@ -74,6 +120,8 @@ export class AddNewScreen extends Component {
     render() {
         return (
             <View style={style.container}>
+                <ProgressDialog
+                loading={this.state.loading} />
                 <View style={{flex:.1, width: screenWidth, flexDirection:'column'}}>
                     <View style={{flex:1, flexDirection:'row', paddingTop: 18, paddingLeft:10, paddingRight:10, justifyContent:'space-between'}}>
                         <View>

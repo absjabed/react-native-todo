@@ -3,12 +3,12 @@ import { Text, View, StyleSheet, Dimensions, Alert, SectionList, SafeAreaView, T
 import Icon from 'react-native-vector-icons/AntDesign';
 import { post } from '../utils/apiUtils';
 import Toast from 'react-native-toast-message';
-import ProgressDialog from '../utils/loader'
 import IIcon from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../styles/colors'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { jsonGroupByFunc } from '../utils/jsonGroupBy';
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
+const screenHeight = Math.round(Dimensions.get('window').height);
 
 const Item = ({itemObj,navigation, doneEvent, deleteEvent}) => (
     <View style={{...style.item, borderLeftWidth:5, borderLeftColor: '#'+itemObj.vColorLabel.split('#')[1]}}>
@@ -59,157 +59,7 @@ export class HomeScreen extends Component {
         loading: false,
         userInfo: [],
         SectionData: [],
-        PreData:
-        [
-          // {
-              
-          //     "iAutoId": 5,
-      
-          //     "vUserId": "absjabed",
-      
-          //     "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
-      
-          //     "vTodoTitle": "Add New Todo 5",
-      
-          //     "vTodoDescription": "Adding New Todo from API",
-      
-          //     "dDate": "2021-12-28T00:00:00",
-      
-          //     "tTime": "09:00am - 08:30pm",
-      
-          //     "vLocation": "Starbucks",
-      
-          //     "tNotifyTime": "30 minutes",
-      
-          //     "vColorLabel": "Grenish#25be7b",
-      
-          //     "bIsDone": true,
-      
-          //     "bIsDeleted": false,
-      
-          //     "dDateOfEntry": "2021-01-28T16:27:54.167"
-      
-          //   },
-      
-          //   {
-      
-          //     "iAutoId": 3,
-      
-          //     "vUserId": "absjabed",
-      
-          //     "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
-      
-          //     "vTodoTitle": "Add New Todo 3",
-      
-          //     "vTodoDescription": "Adding New Todo from API",
-      
-          //     "dDate": "2021-12-28T00:00:00",
-      
-          //     "tTime": "9:00am - 08:30pm",
-      
-          //     "vLocation": "",
-      
-          //     "tNotifyTime": "30 minutes",
-      
-          //     "vColorLabel": "Orange#ffa65b",
-      
-          //     "bIsDone": false,
-      
-          //     "bIsDeleted": false,
-      
-          //     "dDateOfEntry": "2021-01-28T16:27:54.167"
-      
-          //   },
-          //   {
-              
-          //     "iAutoId": 4,
-      
-          //     "vUserId": "absjabed",
-      
-          //     "vTodoId": "405CF7A5-8C95-4DB2-97C9-D8495B3D025A",
-      
-          //     "vTodoTitle": "Automation Script Task 4",
-      
-          //     "vTodoDescription": "Automation Script needs to be prepared for system backup.",
-      
-          //     "dDate": "2021-12-24T00:00:00",
-      
-          //     "tTime": "08:00pm - 08:30pm",
-      
-          //     "vLocation": "Restaurant",
-      
-          //     "tNotifyTime": "20 minutes",
-      
-          //     "vColorLabel": "Grenish#25be7b",
-      
-          //     "bIsDone": false,
-      
-          //     "bIsDeleted": false,
-      
-          //     "dDateOfEntry": "2021-01-28T09:56:41.14"
-      
-          //   },
-      
-          //   {
-      
-          //     "iAutoId": 2,
-      
-          //     "vUserId": "absjabed",
-      
-          //     "vTodoId": "405CF7A5-8C95-4DB2-97C9-D8495B3D025A",
-      
-          //     "vTodoTitle": "Automation Script Task 2",
-      
-          //     "vTodoDescription": "Automation Script needs to be prepared for system backup.",
-      
-          //     "dDate": "2021-12-24T00:00:00",
-      
-          //     "tTime": "8:00am - 08:30pm",
-      
-          //     "vLocation": "Bar & Grill",
-      
-          //     "tNotifyTime": "20 minutes",
-      
-          //     "vColorLabel": "Reddish#dd5858",
-      
-          //     "bIsDone": true,
-      
-          //     "bIsDeleted": false,
-      
-          //     "dDateOfEntry": "2021-01-28T09:56:41.14"
-      
-          //   },
-          //   {
-              
-          //     "iAutoId": 6,
-      
-          //     "vUserId": "absjabed",
-      
-          //     "vTodoId": "71A0F3A1-49DD-48EB-882C-04BD1C28CF54",
-      
-          //     "vTodoTitle": "Add New Todo 3",
-      
-          //     "vTodoDescription": "New Task 6",
-      
-          //     "dDate": "2021-12-21T00:00:00",
-      
-          //     "tTime": "09:00am - 10:30pm",
-      
-          //     "vLocation": "Dhaka, BD",
-      
-          //     "tNotifyTime": "30 minutes",
-      
-          //     "vColorLabel": "Violate#818af9",
-      
-          //     "bIsDone": false,
-      
-          //     "bIsDeleted": false,
-      
-          //     "dDateOfEntry": "2021-01-28T16:27:54.167"
-      
-          //   }
-      ]
-
+        PreData:[]
     }
     
 
@@ -219,6 +69,14 @@ export class HomeScreen extends Component {
 
     componentDidMount = () =>{
         const userRcvd = this.props.route.params;
+
+        //This confirms that screen will reload if refocused...
+        //works only for stack navigator...
+        this.focusListener = this.props.navigation.addListener('focus', () => {
+            this.setState({refreshing: true},()=>{
+              this.loadUserTodos();
+          })
+        });
 
         this.setState({refreshing: true, userInfo: userRcvd},()=>{
             this.loadUserTodos();
@@ -257,7 +115,7 @@ export class HomeScreen extends Component {
                     Toast.show({
                         type: 'error',
                         text1: 'Something wrong!',
-                        text2: errorMessage
+                        text2: responseData.deletedStatus.vMessage,
                         })
                 }); 
                 }
@@ -371,6 +229,10 @@ export class HomeScreen extends Component {
               });
     }
 
+    logout=()=>{
+      this.props.navigation.push("LoginScreen");
+    }
+
     componentWillUnmount() {
         removeAndroidBackButtonHandler();
       }
@@ -381,13 +243,27 @@ export class HomeScreen extends Component {
                 <View style={{flex:.3, width: screenWidth, flexDirection:'column'}}>
                     <View style={{flex:1, flexDirection:'row', paddingTop: 18, paddingLeft:10, paddingRight:10, justifyContent:'space-between'}}>
                         <View>
-                            <Icon onPress={()=> alert("Nav Menu")} name="bars" size={30} color="#c6c6c7" />
+                            <Icon onPress={()=> {
+                              Alert.alert(
+                                "Logout",
+                                "Want to logout?",
+                                [
+                                  {
+                                    text: "Cancel",
+                                    onPress: () => console.log("Cancel Pressed"),
+                                    style: "cancel"
+                                  },
+                                  { text: "Logout", onPress: () => this.logout() }
+                                ],
+                                { cancelable: false }
+                              );
+                            }} name="logout" size={30} color="#c6c6c7" />
                         </View>
                         <View>
                             <Text style={{fontSize: 18, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .5}}>Home</Text>
                         </View>
                         <View>
-                            <Icon onPress={()=> this.props.navigation.navigate("AddNewScreen")} name="plus" size={30} color="#c6c6c7" />
+                            <Icon onPress={()=> this.props.navigation.navigate("AddNewScreen", this.state.userInfo)} name="plus" size={30} color="#c6c6c7" />
                         </View>
                     </View>
                 </View>
@@ -406,6 +282,11 @@ export class HomeScreen extends Component {
                               //   this.setState({refreshing: false})
                               // },1500)
                             })} />}
+                            ListEmptyComponent = {
+                              <View style={{marginTop: screenHeight/4, justifyContent:'center', alignItems:'center'}} >
+                                <Icon name="plus" onPress={()=> this.props.navigation.navigate("AddNewScreen", this.state.userInfo)} size={40} color={COLORS.grenish} />
+                                <Text style={{color:COLORS.violate, fontWeight:'bold'}}>Add new Task or Event</Text>
+                              </View>}
                             keyExtractor={(item, index) => item.iAutoId + index}
                             renderItem={({ item }) => <Item itemObj={item} navigation={this.props.navigation} doneEvent={this.handleTaskDone} deleteEvent={this.handleTaskDelete} />}
                             renderSectionHeader={({ section: { title } }) => (
