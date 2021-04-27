@@ -19,6 +19,7 @@
     "moment": "^2.29.1",
     "react": "16.13.1",
     "react-native": "0.63.4",
+    "react-native-fbsdk-next": "^4.1.0",
     "react-native-gesture-handler": "^1.9.0",
     "react-native-masked-text": "^1.13.0",
     "react-native-reanimated": "^1.13.2",

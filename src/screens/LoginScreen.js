@@ -4,6 +4,7 @@ import { post } from '../utils/apiUtils';
 import Toast from 'react-native-toast-message';
 import ProgressDialog from '../utils/loader'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
+import { LoginButton, AccessToken } from 'react-native-fbsdk-next';
 import {COLORS} from '../styles/colors'
 import RNButton from '../components/RNButton'
 import RNTextInput from '../components/RNTextInput'
@@ -105,6 +106,43 @@ export class LoginScreen extends Component {
                                 </View>
                             </View>
                             <RNButton title="Sign In" style={{paddingTop:20}} customClick={this.handleLogin} />
+                            <View style={{marginTop:10, display:"flex", flexDirection:'row', justifyContent:'space-evenly'}}>
+                                <LoginButton
+                                style={{width: "50%", marginRight:15}}
+                                onLoginFinished={
+                                    (error, result) => {
+                                    if (error) {
+                                        console.log("login has error: " + result.error);
+                                    } else if (result.isCancelled) {
+                                        console.log("login is cancelled.");
+                                    } else {
+                                        AccessToken.getCurrentAccessToken().then(
+                                        (data) => {
+                                            console.log(data.accessToken.toString())
+                                        }
+                                        )
+                                    }
+                                    }
+                                }
+                                onLogoutFinished={() => console.log("logout.")}/>
+                                <LoginButton
+                            onLoginFinished={
+                                (error, result) => {
+                                if (error) {
+                                    console.log("login has error: " + result.error);
+                                } else if (result.isCancelled) {
+                                    console.log("login is cancelled.");
+                                } else {
+                                    AccessToken.getCurrentAccessToken().then(
+                                    (data) => {
+                                        console.log(data.accessToken.toString())
+                                    }
+                                    )
+                                }
+                                }
+                            }
+                            onLogoutFinished={() => console.log("logout.")}/>
+                            </View>
                             <View style={style.littleMessageContainer}>
                                 <Text style={style.littleMessage}>
                                 DON'T HAVE AN ACCOUNT?
