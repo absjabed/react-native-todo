@@ -13,7 +13,13 @@ import RNPicker from '../components/RNPicker'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 
-const colors = [{label: "Reddish", value: COLORS.reddish}, {label: "Orange", value: COLORS.darkOrange}, {label: "Green", value: COLORS.grenish}, {label: "Violate", value: COLORS.violate}];
+const colors = [
+        {label: "Reddish", value: COLORS.reddish}, 
+        {label: "Orange", value: COLORS.darkOrange}, 
+        {label: "Green", value: COLORS.grenish}, 
+        {label: "Violate", value: COLORS.violate},
+        {label: "Teal", value: COLORS.teal}
+    ];
 
 export class UpdateTaskScreen extends Component {
     
@@ -103,6 +109,8 @@ export class UpdateTaskScreen extends Component {
 
     componentDidMount = () =>{
         const todoRcvd = this.props.route.params;
+        console.log('#'+todoRcvd.vColorLabel.split('#')[1]);
+        //var colorObj = colors.filter(x=> x.label === )Teal#29cfbf
         this.setState({
             receivedObject: todoRcvd,
             userId: todoRcvd.vUserId,
@@ -115,13 +123,13 @@ export class UpdateTaskScreen extends Component {
             location:todoRcvd.vLocation,
             notifyTime: todoRcvd.tNotifyTime,
             labelColor:todoRcvd.vColorLabel,
-            selectedColorObj: colors.filter(x => x.value === '#'+todoRcvd.vColorLabel.split('#')[1])[0],
-            selectedColorLabel:colors.filter(x => x.value === '#'+todoRcvd.vColorLabel.split('#')[1])[0].label,
-            selectedColorValue: colors.filter(x => x.value === '#'+todoRcvd.vColorLabel.split('#')[1])[0].value
+            selectedColorObj: colors.filter(x => x.value === ('#'+todoRcvd.vColorLabel.split('#')[1]))[0],
+            selectedColorLabel:colors.filter(x => x.value === ('#'+todoRcvd.vColorLabel.split('#')[1]))[0].label,
+            selectedColorValue: colors.filter(x => x.value === ('#'+todoRcvd.vColorLabel.split('#')[1]))[0].value
 
         },()=>{
 
-            console.log('todoReceived', this.state.receivedObject)
+            //console.log('todoReceived', this.state.receivedObject)
         })
         handleAndroidBackButton(this.navigateBack);
         //setTimeout(() => this.setState({ oldColor: '#fdd835' }), 1000);

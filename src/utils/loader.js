@@ -15,6 +15,7 @@ const ProgressDialog = props => {
       <View style={styles.modalBackground}>
         <View style={styles.activityIndicatorWrapper}>
           <ActivityIndicator
+            color={'#25be7b'}
             animating={loading} />
         </View>
       </View>
