@@ -1,24 +1,48 @@
 import React from 'react';
-import {TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {TouchableOpacity, Text, StyleSheet, View, Pressable} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons'
 import {COLORS} from '../styles/colors'
 
-const RNButton = (props) => {
+export const RNButton = (props) => {
   return (
-    <TouchableOpacity
-      style={styles.button}
+    <Pressable
+      style={{...styles.button, ...props.style}}
       onPress={props.customClick}>
       <Text style={styles.text}>{props.title}</Text>
-    </TouchableOpacity>
+    </Pressable>
+  );
+};
+
+export const BrandButton = (props) => {
+  return (
+    <Pressable
+      style={{...styles.button, ...props.style}}
+      onPress={props.customClick}>
+      <View style={styles.brandViewStyle}>
+        <Icon style={{position:'absolute', left:-50}} name={props.iconName} size={props.iconSize} color={props.iconColor} />
+        <Text style={styles.brandButtonText}>{props.title}</Text>
+      </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
+  brandViewStyle:{
+    flex:1,
+    flexDirection:'row'
+  },
+  brandButtonText: {
+    color: 'white',
+    //marginTop: 5,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    textAlignVertical:'center'
+  },
   button: {
     alignItems: 'center',
     backgroundColor: COLORS.grenish,
     color: '#ffffff',
     padding: 10,
-    marginTop: 25,
     height:50,
     borderRadius: 8
   },
@@ -31,4 +55,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RNButton;
+//export default RNButton;

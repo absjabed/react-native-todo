@@ -7,7 +7,7 @@ import ProgressDialog from '../utils/loader'
 import {COLORS} from '../styles/colors'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 const screenWidth = Math.round(Dimensions.get('window').width);
-import RNButton from '../components/RNButton'
+import {RNButton} from '../components/RNButton'
 import RNMaskTextInput from '../components/RNMaskTextInput'
 import RNTextInput from '../components/RNTextInput'
 export class SignUpScreen extends Component {
@@ -129,9 +129,9 @@ export class SignUpScreen extends Component {
                                     labelName="BIRTHDAY"
                                     type={'datetime'}
                                     options={{
-                                        format: 'YYYY-MM-DD'
+                                        format: 'DD/MM/YYYY'
                                       }}
-                                    placeholder="1992-02-29"
+                                    placeholder="29/02/1992"
                                     placeholderTextColor="#25be7b"
                                     value={this.state.birthday}
                                     onChangeText={(birthday) => this.setState({birthday})}
@@ -143,7 +143,7 @@ export class SignUpScreen extends Component {
                                 onChangeText={(birthday) => this.setState({birthday})}
                                 labelName="BIRTHDAY"
                             /> */}
-                            <RNButton title="Sign Up" style={{paddingTop:20}} customClick={this.handleSignup} />
+                            <RNButton title="Sign Up" customClick={this.handleSignup} />
                             <View style={{flex:1, flexDirection:'row', alignItems:'center', justifyContent: 'center'}}>
                                 <Text style={{fontSize: 12,textAlign: 'center',color: '#c3c3c5', fontWeight:'bold'}}>
                                 ALREADY HAVE AN ACCOUNT?
