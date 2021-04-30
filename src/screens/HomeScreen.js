@@ -189,6 +189,7 @@ export class HomeScreen extends Component {
         const userObj = {
           "VUserId": this.state.userInfo.vUserId
         }
+        console.log(userObj);
 
         post('/UserTodos', userObj)
               .then(response => {

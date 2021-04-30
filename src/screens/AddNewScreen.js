@@ -13,7 +13,13 @@ import RNPicker from '../components/RNPicker'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 
-const colors = [{label: "Reddish", value: COLORS.reddish}, {label: "Orange", value: COLORS.darkOrange}, {label: "Green", value: COLORS.grenish}, {label: "Violate", value: COLORS.violate}];
+const colors = [
+    {label: "Reddish", value: COLORS.reddish}, 
+    {label: "Orange", value: COLORS.darkOrange}, 
+    {label: "Green", value: COLORS.grenish}, 
+    {label: "Violate", value: COLORS.violate},
+    {label: "Teal", value: COLORS.teal}
+];
 
 export class AddNewScreen extends Component {
     

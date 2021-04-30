@@ -21,7 +21,7 @@ export class SignUpScreen extends Component {
     }
 
     handleSignup = () =>{
-        this.setState({loading: true},()=>{
+        this.setState({loading: true}, async ()=>{
             const signupUserOb = {
                 "VFullName": this.state.fullName,
                 "VUserId": this.state.email,
@@ -32,7 +32,7 @@ export class SignUpScreen extends Component {
             console.log(signupUserOb)
   
   
-            post('/SignUp', signupUserOb)
+            await post('/SignUp', signupUserOb)
                 .then(response => {
         
                     this.setState({loading: false}, ()=>{
@@ -129,9 +129,9 @@ export class SignUpScreen extends Component {
                                     labelName="BIRTHDAY"
                                     type={'datetime'}
                                     options={{
-                                        format: 'DD/MM/YYYY'
+                                        format: 'YYYY-MM-DD'
                                       }}
-                                    placeholder="29/02/1992"
+                                    placeholder="1992-02-29"
                                     placeholderTextColor="#25be7b"
                                     value={this.state.birthday}
                                     onChangeText={(birthday) => this.setState({birthday})}

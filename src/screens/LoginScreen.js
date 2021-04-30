@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import ProgressDialog from '../utils/loader'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 import auth from '@react-native-firebase/auth';
+import moment from 'moment'
 import { LoginButton, AccessToken, LoginManager, GraphRequest, GraphRequestManager  } from 'react-native-fbsdk-next';
 import {COLORS} from '../styles/colors'
 import {RNButton, BrandButton} from '../components/RNButton'
@@ -16,10 +17,9 @@ export class LoginScreen extends Component {
         username: '',
         password: '',
         loading: false,
-        user_name: '',
         email:'',
-        avatar_url: '',
-        avatar_show: false
+        name:'',
+        birthday:''
     }
 
     handleLogin = () =>{
@@ -66,56 +66,121 @@ export class LoginScreen extends Component {
         });
     }
 
-    get_Response_Info = (error, result) => {
-        if (error) {
-          console.log('Error fetching data: ' + error.toString());
-        } else {
-     
-        //   this.setState({ 
-        //       user_name: 'Welcome' + ' ' + result.name,
-        //       avatar_url: result.picture.data.url,
-        //       avatar_show: true
-        //      });
-     
-          console.log('graph-result',result);
-     
-        }
-      }
-
     navigateBack = () =>{
         BackHandler.exitApp();
     }
 
+    handleSignup = async (signupObj) =>{
+        this.setState({loading: true}, async ()=>{
+            
+            await post('/SocialLogin', signupObj)
+                .then(response => {
+        
+                    this.setState({loading: false}, ()=>{
+                        var responseData = response.data;
+                    if(responseData.isRegistrationSucceed && responseData.isAuthenticated){
+                        Toast.show({
+                            type: 'success',
+                            position: 'bottom',
+                            text1: 'Successed!',
+                            text2: responseData.vMessage+'👋',
+                            visibilityTime: 1500,
+                            })
+                        this.props.navigation.navigate('HomeScreen', responseData.userObj);
+                    }else{
+                        Toast.show({
+                            type: 'error',
+                            position: 'bottom',
+                            text1: 'Error!',
+                            text2: responseData.vMessage,
+                            visibilityTime: 1500,
+                            })
+                    }
+                    });
+        
+                })
+                .catch(errorMessage => {   
+                    this.setState({loading: false}, ()=>{
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error!',
+                            text2: errorMessage
+                            })
+                    }); 
+                });
+        })
+    }
+
+    get_Response_Info = (error, result) => {
+        if (error) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error!',
+                    text2: error
+                    });
+          console.log('Error fetching data: ' + error.toString());
+        } else {
+
+          //graph-result {"birthday": "05/06/1984", "email": "open_iiuprxc_user@tfbnw.net", "id": "104239975152811", "name": "Open Graph Test User"}
+          console.log('graph-result',result);
+            /**
+                MM/DD/YYYY
+                moment("05/06/1984", "MM/DD/YYYY").format("YYYY-MM-DD")
+                {
+                    "VUserId": "test3", <= email
+                    "VPassword": "todo123", <= default <= id
+                    "VFullName": "Test", <= name
+                    "DDateOfBirth":"2019-01-30" <= birthday
+                }
+            */
+           var fbSignUpObj = {
+                "VUserId": result.email,
+                "VPassword": result.id,
+                "VFullName": result.name,
+                "DDateOfBirth": moment(result.birthday, "MM/DD/YYYY").format("YYYY-MM-DD")
+            }
+            this.handleSignup(fbSignUpObj);
+           
+           /**TODO: 
+             * 1# Get your info from graph API
+             * 2# store api response and login in localDB or Async Storage for auto login
+             * 3# Register with fb info, with new api end, not need to register if already exists
+             * 4# User logout will be from Async Storage and also from firebase auth
+             * 5# iOS Dependencies installation with pod and setup existing libraries.
+             **/
+        }
+      }
+
     onFacebookButtonPress = async ()=> {
-        /**TODO: 1# Get your info from graph API
-         * 2# store api response in localDB or Async Storage for auto login
-         * 3# Register with fb info, with new api end, not need to register if already exists
-         * 4# User logout will be from Async Storage and also from firebase auth
-         * 5# iOS Dependencies installation with pod and setup existing libraries.
-         */
         // Attempt login with permissions
         const result = await LoginManager.logInWithPermissions(['public_profile','user_birthday','email']);
+        
         console.log('login result', result);
+        //login result {"declinedPermissions": [], "grantedPermissions": ["user_birthday", "public_profile", "user_friends", "email"], "isCancelled": false}
+
         if (result.isCancelled) {
+            Toast.show({
+                type: 'error',
+                text1: 'Error!',
+                text2: "User cancelled the login process!"
+                });
           //throw 'User cancelled the login process';
           console.log('User cancelled the login process');
         }
-      /**login result {"declinedPermissions": [], "grantedPermissions": ["user_birthday", "public_profile", "user_friends", "email"], "isCancelled": false}
-[Thu Apr 29 2021 24:20:28.407]  LOG      fb-cred {"providerId": "facebook.com", "secret": "", "token": "EAA4ZApkrxPg8BAJtUSNlCvEkH3M0wq0UgrmgFikI0DxJV1DzI9at3tpwAsA1bkXTIv2OxZC4Ja3pZBDSU9RfGi77ruHNSACsH3sjAZBFYZChRZB8FKZBlUR78WJWOTcJFy0TzwJvrnHUa1of4U2EPqoAAXy37oD2O1ZCDanqcZBnSpxVo45rvLb1hfLseHp4SCDCKf1UECEQNG9CCcUbAWjBIP1ACHnYQyJAoeUGxV4ZAh0sS9XZBqwR8b7YZBKTUDfjAN4ZD"}
-[Thu Apr 29 2021 24:20:28.946]  LOG      graph-result {"birthday": "05/06/1984", "email": "open_iiuprxc_user@tfbnw.net", "id": "104239975152811", "name": "Open Graph Test User"}
- */
+
         // Once signed in, get the users AccesToken
         const data = await AccessToken.getCurrentAccessToken();
 
-        const processRequest = new GraphRequest(
-            '/me?fields=birthday,email,name',
-            null,
-            this.get_Response_Info
-          );
-          // Start the graph request.
-          new GraphRequestManager().addRequest(processRequest).start();
+        // Start the graph request.
+        const processRequest = new GraphRequest('/me?fields=birthday,email,name', null, this.get_Response_Info);
+        new GraphRequestManager().addRequest(processRequest).start();
       
         if (!data) {
+            Toast.show({
+                type: 'error',
+                text1: 'Error!',
+                text2: "Something went wrong obtaining access token!"
+                });
           //throw 'Something went wrong obtaining access token';
           console.log("Something went wrong obtaining access token");
         }
@@ -123,6 +188,8 @@ export class LoginScreen extends Component {
         // Create a Firebase credential with the AccessToken
         const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
         console.log('fb-cred', facebookCredential);
+        // fb-cred {"providerId": "facebook.com", "secret": "", "token": "EAA4ZApkrxPg8BAJtUSNlCvEkH3M0wq0UgrmgFikI0DxJV1DzI9at3tpwAsA1bkXTIv2OxZC4Ja3pZBDSU9RfGi77ruHNSACsH3sjAZBFYZChRZB8FKZBlUR78WJWOTcJFy0TzwJvrnHUa1of4U2EPqoAAXy37oD2O1ZCDanqcZBnSpxVo45rvLb1hfLseHp4SCDCKf1UECEQNG9CCcUbAWjBIP1ACHnYQyJAoeUGxV4ZAh0sS9XZBqwR8b7YZBKTUDfjAN4ZD"}
+        
         // Sign-in the user with the credential
         return auth().signInWithCredential(facebookCredential);
       }
