@@ -46,6 +46,7 @@ export class UpdateTaskScreen extends Component {
         this.props.navigation.goBack();
     }
 
+    /**When update button clicked */
     UpdateTask = () =>{
 
         var colName = colors.filter(x => x.value === this.state.selectedColorValue)[0].label;
@@ -134,6 +135,7 @@ export class UpdateTaskScreen extends Component {
         //setTimeout(() => this.setState({ oldColor: '#fdd835' }), 1000);
     }
 
+    /**When color is changed */
     changeColor = colorRgb => this.setState({ oldColor: colorRgb },()=> console.log(colorRgb))
 
     componentWillUnmount() {

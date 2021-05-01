@@ -1,6 +1,8 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 import {TextInputMask} from 'react-native-masked-text'
+
+/**Custom Masked TextBox */
 const RNMaskTextInput = (props) => {
   return (
     <View

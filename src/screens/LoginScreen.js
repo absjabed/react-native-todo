@@ -6,22 +6,24 @@ import ProgressDialog from '../utils/loader'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment'
-import { LoginButton, AccessToken, LoginManager, GraphRequest, GraphRequestManager  } from 'react-native-fbsdk-next';
+import {AccessToken, LoginManager, GraphRequest, GraphRequestManager  } from 'react-native-fbsdk-next';
 import {COLORS} from '../styles/colors'
-import {storeItem, SetMultiple, clearStore} from '../config/asyncStorageFunc'
+import {SetMultiple, clearStore} from '../config/asyncStorageFunc'
 import {_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE} from '../config/asyncStoreKey'
 import {RNButton, BrandButton} from '../components/RNButton'
 import RNTextInput from '../components/RNTextInput'
 const screenWidth = Math.round(Dimensions.get('window').width);
 
 export class LoginScreen extends Component {
+    /**component state */
     state={
         username: '',
         password: '',
         loading: false
     }
 
-    handleLogin = () =>{
+    /** Handle login with email address*/
+    handleLoginWithEmail = () =>{
         this.setState({loading: true},async ()=>{
             const userOb = {
                 "VUserId": this.state.username,
@@ -63,7 +65,7 @@ export class LoginScreen extends Component {
               })
               .catch(errorMessage => {   
                   this.setState({loading: false}, async ()=>{
-                        await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+                    await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
                       Toast.show({
                           type: 'error',
                           text1: 'Error!',
@@ -75,23 +77,26 @@ export class LoginScreen extends Component {
     }
 
     navigateBack = () =>{
+        /**Exit app when user want to go back */
         BackHandler.exitApp();
     }
 
+    /** Handle login with facebook login*/
     handleSignupWithFacebook = async (signupObj) =>{
         this.setState({loading: true}, async ()=>{
             
+            /**Calling social login Api end */
             await post('/SocialLogin', signupObj)
                 .then(response => {
         
                     this.setState({loading: false}, async ()=>{
                         var responseData = response.data;
                     if(responseData.isRegistrationSucceed && responseData.isAuthenticated){
-                        //await storeItem(_LOGGED_IN)
+
                         /**Set Multiple value once */
-                        const firstPair = [_LOGGED_IN, JSON.stringify(true)];
-                        const secondPair = [_LOGIN_TYPE, JSON.stringify("fbook")];
-                        const thirdPair = [_USER_PAYLOAD, JSON.stringify(responseData.userObj)];
+                        const firstPair = [_LOGGED_IN, JSON.stringify(true)]; /**storing loggedIn flag */
+                        const secondPair = [_LOGIN_TYPE, JSON.stringify("fbook")]; /**storing login type */
+                        const thirdPair = [_USER_PAYLOAD, JSON.stringify(responseData.userObj)]; /**storing user object */
                         await SetMultiple([firstPair, secondPair, thirdPair]);
 
                         Toast.show({
@@ -101,6 +106,7 @@ export class LoginScreen extends Component {
                             text2: responseData.vMessage+'👋',
                             visibilityTime: 1500,
                             })
+                        /**Navigate to Home Screen...*/
                         this.props.navigation.navigate('HomeScreen', responseData.userObj);
                     }else{
 
@@ -127,6 +133,7 @@ export class LoginScreen extends Component {
         })
     }
 
+    /**Facebook Graph Api Callback function */
     get_Response_Info = (error, result) => {
         if (error) {
                 Toast.show({
@@ -137,41 +144,32 @@ export class LoginScreen extends Component {
           console.log('Error fetching data: ' + error.toString());
         } else {
 
-          //graph-result {"birthday": "05/06/1984", "email": "open_iiuprxc_user@tfbnw.net", "id": "104239975152811", "name": "Open Graph Test User"}
-          console.log('graph-result',result);
-            /**
-                MM/DD/YYYY
-                moment("05/06/1984", "MM/DD/YYYY").format("YYYY-MM-DD")
-                {
-                    "VUserId": "test3", <= email
-                    "VPassword": "todo123", <= default <= id
-                    "VFullName": "Test", <= name
-                    "DDateOfBirth":"2019-01-30" <= birthday
-                }
-            */
+            console.log('result', result)
+          //graph-result {"birthday": "05/06/1984", "email": "open_iiuprxc_user@email.net", "id": "104239976589354", "name": "Open Graph Test User"}
+         
+          /**User object decorated with facebook credentials */
+            const birthdayValidation = result.hasOwnProperty('birthday') ? 
+                                        moment(result.birthday, "MM/DD/YYYY").format("YYYY-MM-DD") : 
+                                        moment("01/01/1900", "MM/DD/YYYY").format("YYYY-MM-DD"); 
            var fbSignUpObj = {
                 "VUserId": result.email,
                 "VPassword": result.id,
                 "VFullName": result.name,
-                "DDateOfBirth": moment(result.birthday, "MM/DD/YYYY").format("YYYY-MM-DD")
+                "DDateOfBirth": birthdayValidation
             }
+            console.log('fbSignUpObj', fbSignUpObj)
+            /**Handle Signup or login with facebook credentials */
             this.handleSignupWithFacebook(fbSignUpObj);
            
-           /**TODO: 
-             * 1# Get your info from graph API
-             * 2# store api response and login in localDB or Async Storage for auto login
-             * 3# Register with fb info, with new api end, not need to register if already exists
-             * 4# User logout will be from Async Storage and also from firebase auth
-             * 5# iOS Dependencies installation with pod and setup existing libraries.
-             **/
         }
       }
 
+    /**On Facebook login button pressed */
     onFacebookButtonPress = async ()=> {
         // Attempt login with permissions
-        const result = await LoginManager.logInWithPermissions(['public_profile','user_birthday','email']);
+        const result = await LoginManager.logInWithPermissions(['public_profile','email']);
         
-        console.log('login result', result);
+        //birthday_permission: 'user_birthday', 
         //login result {"declinedPermissions": [], "grantedPermissions": ["user_birthday", "public_profile", "user_friends", "email"], "isCancelled": false}
 
         if (result.isCancelled) {
@@ -187,7 +185,7 @@ export class LoginScreen extends Component {
 
         // Once signed in, get the users AccesToken
         const data = await AccessToken.getCurrentAccessToken();
-
+        console.log('data', data)
         // Start the graph request.
         const processRequest = new GraphRequest('/me?fields=birthday,email,name', null, this.get_Response_Info);
         new GraphRequestManager().addRequest(processRequest).start();
@@ -205,8 +203,8 @@ export class LoginScreen extends Component {
       
         // Create a Firebase credential with the AccessToken
         const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
-        console.log('fb-cred', facebookCredential);
-        // fb-cred {"providerId": "facebook.com", "secret": "", "token": "EAA4ZApkrxPg8BAJtUSNlCvEkH3M0wq0UgrmgFikI0DxJV1DzI9at3tpwAsA1bkXTIv2OxZC4Ja3pZBDSU9RfGi77ruHNSACsH3sjAZBFYZChRZB8FKZBlUR78WJWOTcJFy0TzwJvrnHUa1of4U2EPqoAAXy37oD2O1ZCDanqcZBnSpxVo45rvLb1hfLseHp4SCDCKf1UECEQNG9CCcUbAWjBIP1ACHnYQyJAoeUGxV4ZAh0sS9XZBqwR8b7YZBKTUDfjAN4ZD"}
+        console.log('facebookCredential', facebookCredential)
+        
         
         // Sign-in the user with the credential
         return auth().signInWithCredential(facebookCredential);
@@ -256,7 +254,7 @@ export class LoginScreen extends Component {
                             <RNButton 
                                 style={{marginTop: 25}}
                                 title="Log In" 
-                                customClick={this.handleLogin} 
+                                customClick={this.handleLoginWithEmail} 
                             />
                             <View style={{marginTop:20, height:10, display:"flex", flexDirection:'column', alignItems:'center', justifyContent:'center'}}>
                                 <Text style={{textAlign:'center', fontWeight:'bold', marginTop: 20}}>Or</Text>
@@ -269,32 +267,6 @@ export class LoginScreen extends Component {
                                     style={{backgroundColor: "#1877f2", width:'100%'}} 
                                     customClick={this.onFacebookButtonPress} 
                                 />
-                                {/* <LoginButton
-                                //style={{width: "50%", marginRight:15}}
-                                //permissions={['public_profile']}
-                                permissions={['public_profile']}
-                                onLoginFinished={
-                                    (error, result) => {
-                                    if (error) {
-                                        console.log("login has error: " + result.error);
-                                    } else if (result.isCancelled) {
-                                        console.log("login is cancelled.");
-                                    } else {
-                                        AccessToken.getCurrentAccessToken().then((data) => {
-                                            console.log(data.accessToken.toString());
-
-                                            const processRequest = new GraphRequest(
-                                                '/me?fields=name,email',
-                                                null,
-                                                this.get_Response_Info
-                                              );
-                                              // Start the graph request.
-                                              new GraphRequestManager().addRequest(processRequest).start();
-                                        })
-                                    }
-                                    }
-                                }
-                                onLogoutFinished={() => console.log("logout.")}/> */}
                             </View>
                             <View style={style.littleMessageContainer}>
                                 <Text style={style.littleMessage}>

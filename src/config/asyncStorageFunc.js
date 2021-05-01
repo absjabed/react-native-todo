@@ -1,8 +1,6 @@
-import React from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-
+/**Async storage function to store key data */
 export async function storeItem(key, item) {
     try {
         //we want to wait for the Promise returned by AsyncStorage.setItem()
@@ -15,6 +13,7 @@ export async function storeItem(key, item) {
     }
   }
 
+  /**Async storage function to get key data */
 export async function retrieveItem(key) {
     try {
       const retrievedItem =  await AsyncStorage.getItem(key);
@@ -26,6 +25,7 @@ export async function retrieveItem(key) {
     return
   }
 
+  /**Async storage function to remove key data */
 export async function removeItemValue(key) {
     try {
       await AsyncStorage.removeItem(key);
@@ -36,7 +36,7 @@ export async function removeItemValue(key) {
     }
   }
 
-
+/**Async storage function to clear data */
 export async function clearStore(keyArr) {
   try {
     await AsyncStorage.multiRemove(keyArr);
@@ -48,15 +48,13 @@ export async function clearStore(keyArr) {
   }
 }
 
-
+/**Async storage function to get multiple key data */
 export const getMultiple = async (keyArr) => {
   let values
   try {
     //['@MyApp_user', '@MyApp_key']
     values = await AsyncStorage.multiGet(keyArr);
     return values;
-
-  // example console.log output:
   // [ ['@MyApp_user', 'myUserValue'], ['@MyApp_key', 'myKeyValue'] ]
   } catch(e) {
     console.log(e);
@@ -74,8 +72,6 @@ export const SetMultiple = async (dataArr) => {
     //save error
     console.log(e);
   }
-
-  console.log("Done.")
 }
 
 

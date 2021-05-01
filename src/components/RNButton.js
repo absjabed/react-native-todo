@@ -3,6 +3,7 @@ import {TouchableOpacity, Text, StyleSheet, View, Pressable} from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import {COLORS} from '../styles/colors'
 
+/**Custom Button */
 export const RNButton = (props) => {
   return (
     <Pressable
@@ -13,6 +14,7 @@ export const RNButton = (props) => {
   );
 };
 
+/**Custom Branded Button */
 export const BrandButton = (props) => {
   return (
     <Pressable

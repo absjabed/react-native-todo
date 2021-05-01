@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
+/**Custom Picker */
 const RNPicker = (props) => {
   return (
     <View

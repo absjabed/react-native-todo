@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text, StyleSheet} from 'react-native';
 
+/**Custom TextBox */
 const RNText = (props) => {
   return <Text style={styles.text}>{props.text}</Text>;
 };

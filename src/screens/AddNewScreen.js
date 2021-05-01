@@ -13,6 +13,7 @@ import RNPicker from '../components/RNPicker'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 
+/**Task color choice */
 const colors = [
     {label: "Reddish", value: COLORS.reddish}, 
     {label: "Orange", value: COLORS.darkOrange}, 
@@ -45,6 +46,7 @@ export class AddNewScreen extends Component {
         this.props.navigation.goBack();
     }
 
+    /**When add task button clicked */
     AddTask = async () =>{
 
         var colName = colors.filter(x => x.value === this.state.selectedColorValue)[0].label;
@@ -60,7 +62,6 @@ export class AddNewScreen extends Component {
             "vColorLabel": colName+this.state.selectedColorValue
         }
 
-        console.log(todoObj)
 
         Alert.alert(
             'Add New Task!',

@@ -20,6 +20,7 @@ export class SignUpScreen extends Component {
         loading: false
     }
 
+    /**Handling signup with normal email */
     handleSignup = () =>{
         this.setState({loading: true}, async ()=>{
             const signupUserOb = {

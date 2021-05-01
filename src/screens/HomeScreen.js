@@ -13,6 +13,7 @@ import {_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE} from '../config/asyncStoreKey'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 const screenHeight = Math.round(Dimensions.get('window').height);
 
+/**Task Item render object */
 const Item = ({itemObj,navigation, doneEvent, deleteEvent}) => (
     <View style={{...style.item, borderLeftWidth:5, borderLeftColor: '#'+itemObj.vColorLabel.split('#')[1]}}>
       <View style={{flex:1, flexDirection:'row', justifyContent:'space-between'}}>
@@ -71,6 +72,7 @@ export class HomeScreen extends Component {
       super(props)
       console.log('home constructor called')
       this.props.navigation.addListener('focus', () => {
+        /**If this screen already mounted then reload the task list */
         if(this.state._already_mounted){
             this.setState({refreshing: true},async()=>{
               await this.loadUserTodos();
@@ -85,17 +87,10 @@ export class HomeScreen extends Component {
     }
 
     componentDidMount = async() =>{
-      console.log('home screen mounted.')
+        /**get data from local storage */
         const userRcvd = await retrieveItem(_USER_PAYLOAD);
         const loginType = await retrieveItem(_LOGIN_TYPE);
         console.log('usr async',userRcvd)
-        //This confirms that screen will reload if refocused...
-        //works only for stack navigator...
-        // this.focusListener = this.props.navigation.addListener('focus', () => {
-        //     this.setState({refreshing: true},()=>{
-        //       this.loadUserTodos();
-        //   })
-        // });
 
         this.setState({refreshing: true, userInfo: userRcvd, loginType, _already_mounted: true},async ()=>{
             await this.loadUserTodos();
@@ -104,6 +99,7 @@ export class HomeScreen extends Component {
         handleAndroidBackButton(this.navigateBack);
     }
 
+    /**When Delete task clicked */
     handleTaskDelete=(obj)=>{
       var deleteReqObj ={
         "vUserId": this.state.userInfo.vUserId,
@@ -154,6 +150,7 @@ export class HomeScreen extends Component {
       );
     }
 
+    /**When Delete task clicked */
     handleTaskDone=(obj)=>{
       var doneReqObj ={
         "vUserId": this.state.userInfo.vUserId,
@@ -204,11 +201,11 @@ export class HomeScreen extends Component {
       );
     }
 
+    /**Load all the tasks for logged in user */
     loadUserTodos= async ()=>{
         const userObj = {
           "VUserId": this.state.userInfo.vUserId
         }
-        console.log('home state',userObj);
 
         await post('/UserTodos', userObj)
               .then(response => {
@@ -224,6 +221,7 @@ export class HomeScreen extends Component {
                           visibilityTime: 1000,
                           })
 
+                          /**Process task data in group wise format */
                           var processedData = jsonGroupByFunc(this.state.PreData, 'dDate');
 
                           this.setState({SectionData: processedData});
@@ -249,13 +247,19 @@ export class HomeScreen extends Component {
               });
     }
 
+    /**When logout button clicked */
     logout = () => {
+      /** If user logged in with email then logout normally
+       * and redirect to login screen
+       */
       if(this.state.loginType === 'email'){
         /**Clear Storage */
         clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
         this.props.navigation.navigate("LoginScreen");
       }else{
-
+        /** If user logged in with facebook then logout with facebook login sdk 
+         * and redirect to login screen
+        */
         clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
         LoginManager.logOut();
         this.props.navigation.navigate("LoginScreen");
@@ -291,7 +295,7 @@ export class HomeScreen extends Component {
                             }} name="logout" size={30} color="#c6c6c7" />
                         </View>
                         <View>
-                            <Text style={{fontSize: 18, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .5}}>Home</Text>
+                            <Text style={{fontSize: 16, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .3}}>{this.state.userInfo.vFullName+""}</Text>
                         </View>
                         <View>
                             <Icon onPress={()=> this.props.navigation.navigate("AddNewScreen", this.state.userInfo)} name="plus" size={30} color="#c6c6c7" />
