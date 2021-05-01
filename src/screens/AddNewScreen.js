@@ -29,7 +29,7 @@ export class AddNewScreen extends Component {
         userId:"",
         title: "Todo Task Title",
         description:"This is the description of todo task...",
-        date: "2021-02-03",
+        date: moment().format('YYYY-MM-DD'),
         fromTime:"08:00am",
         toTime:"09:00am",
         location:'Starbucks',
@@ -45,7 +45,7 @@ export class AddNewScreen extends Component {
         this.props.navigation.goBack();
     }
 
-    AddTask = () =>{
+    AddTask = async () =>{
 
         var colName = colors.filter(x => x.value === this.state.selectedColorValue)[0].label;
         var todoObj = 
@@ -113,13 +113,13 @@ export class AddNewScreen extends Component {
             receivedObject: todoRcvd,
             userId: todoRcvd.vUserId
         },()=>{
-
             console.log('todoReceived', this.state.receivedObject)
         })
         handleAndroidBackButton(this.navigateBack);
     }
 
     componentWillUnmount() {
+        console.log('add new screen unmounted.')
         removeAndroidBackButtonHandler();
       }
 

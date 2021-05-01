@@ -109,8 +109,7 @@ export class UpdateTaskScreen extends Component {
 
     componentDidMount = () =>{
         const todoRcvd = this.props.route.params;
-        console.log('#'+todoRcvd.vColorLabel.split('#')[1]);
-        //var colorObj = colors.filter(x=> x.label === )Teal#29cfbf
+        //console.log('#'+todoRcvd.vColorLabel.split('#')[1]);
         this.setState({
             receivedObject: todoRcvd,
             userId: todoRcvd.vUserId,
@@ -138,6 +137,7 @@ export class UpdateTaskScreen extends Component {
     changeColor = colorRgb => this.setState({ oldColor: colorRgb },()=> console.log(colorRgb))
 
     componentWillUnmount() {
+        console.log('update screen unmounted.')
         removeAndroidBackButtonHandler();
       }
 

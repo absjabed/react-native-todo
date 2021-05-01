@@ -6,7 +6,10 @@ import Toast from 'react-native-toast-message';
 import IIcon from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../styles/colors'
 const screenWidth = Math.round(Dimensions.get('window').width);
+import { LoginManager } from 'react-native-fbsdk-next';
 import { jsonGroupByFunc } from '../utils/jsonGroupBy';
+import {retrieveItem, clearStore} from '../config/asyncStorageFunc'
+import {_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE} from '../config/asyncStoreKey'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 const screenHeight = Math.round(Dimensions.get('window').height);
 
@@ -57,29 +60,45 @@ export class HomeScreen extends Component {
     state={
         refreshing: false,
         loading: false,
+        loginType:'',
         userInfo: [],
         SectionData: [],
-        PreData:[]
+        PreData:[],
+        _already_mounted: false,
     }
+
+    constructor(props) {
+      super(props)
+      console.log('home constructor called')
+      this.props.navigation.addListener('focus', () => {
+        if(this.state._already_mounted){
+            this.setState({refreshing: true},async()=>{
+              await this.loadUserTodos();
+          })
+        }
+    });
+  }
     
 
     navigateBack = () =>{
         this.props.navigation.goBack();
     }
 
-    componentDidMount = () =>{
-        const userRcvd = this.props.route.params;
-
+    componentDidMount = async() =>{
+      console.log('home screen mounted.')
+        const userRcvd = await retrieveItem(_USER_PAYLOAD);
+        const loginType = await retrieveItem(_LOGIN_TYPE);
+        console.log('usr async',userRcvd)
         //This confirms that screen will reload if refocused...
         //works only for stack navigator...
-        this.focusListener = this.props.navigation.addListener('focus', () => {
-            this.setState({refreshing: true},()=>{
-              this.loadUserTodos();
-          })
-        });
+        // this.focusListener = this.props.navigation.addListener('focus', () => {
+        //     this.setState({refreshing: true},()=>{
+        //       this.loadUserTodos();
+        //   })
+        // });
 
-        this.setState({refreshing: true, userInfo: userRcvd},()=>{
-            this.loadUserTodos();
+        this.setState({refreshing: true, userInfo: userRcvd, loginType, _already_mounted: true},async ()=>{
+            await this.loadUserTodos();
         })
 
         handleAndroidBackButton(this.navigateBack);
@@ -95,9 +114,9 @@ export class HomeScreen extends Component {
         'This task already done. Do you wanna Delete it Now?',
         [
           {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
-          {text: 'YES', onPress: () => this.setState({refreshing: true},()=>{
+          {text: 'YES', onPress: () => this.setState({refreshing: true},async()=>{
 
-            post('/DeleteTodo', deleteReqObj)
+            await post('/DeleteTodo', deleteReqObj)
             .then(response => {
               
               var responseData = response.data;
@@ -145,9 +164,9 @@ export class HomeScreen extends Component {
         'You want to mark this task as Done?',
         [
           {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
-          {text: 'YES', onPress: () => this.setState({refreshing: true},()=>{
+          {text: 'YES', onPress: () => this.setState({refreshing: true},async()=>{
 
-            post('/DoneTodo', doneReqObj)
+            await post('/DoneTodo', doneReqObj)
             .then(response => {
               
               var responseData = response.data;
@@ -185,13 +204,13 @@ export class HomeScreen extends Component {
       );
     }
 
-    loadUserTodos=()=>{
+    loadUserTodos= async ()=>{
         const userObj = {
           "VUserId": this.state.userInfo.vUserId
         }
-        console.log(userObj);
+        console.log('home state',userObj);
 
-        post('/UserTodos', userObj)
+        await post('/UserTodos', userObj)
               .then(response => {
                 
                 var responseData = response.data;
@@ -230,11 +249,22 @@ export class HomeScreen extends Component {
               });
     }
 
-    logout=()=>{
-      this.props.navigation.push("LoginScreen");
+    logout = () => {
+      if(this.state.loginType === 'email'){
+        /**Clear Storage */
+        clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+        this.props.navigation.navigate("LoginScreen");
+      }else{
+
+        clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+        LoginManager.logOut();
+        this.props.navigation.navigate("LoginScreen");
+      }
+      
     }
 
     componentWillUnmount() {
+        console.log('home screen unmounted.');
         removeAndroidBackButtonHandler();
       }
 
@@ -277,8 +307,8 @@ export class HomeScreen extends Component {
                                 }}>
                             <SectionList
                             sections={this.state.SectionData}
-                            refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={()=>  this.setState({refreshing: true},()=>{
-                                this.loadUserTodos();
+                            refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={()=>  this.setState({refreshing: true}, async()=>{
+                                await this.loadUserTodos();
                               // setTimeout(()=>{
                               //   this.setState({refreshing: false})
                               // },1500)

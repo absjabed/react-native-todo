@@ -8,6 +8,8 @@ import auth from '@react-native-firebase/auth';
 import moment from 'moment'
 import { LoginButton, AccessToken, LoginManager, GraphRequest, GraphRequestManager  } from 'react-native-fbsdk-next';
 import {COLORS} from '../styles/colors'
+import {storeItem, SetMultiple, clearStore} from '../config/asyncStorageFunc'
+import {_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE} from '../config/asyncStoreKey'
 import {RNButton, BrandButton} from '../components/RNButton'
 import RNTextInput from '../components/RNTextInput'
 const screenWidth = Math.round(Dimensions.get('window').width);
@@ -16,24 +18,28 @@ export class LoginScreen extends Component {
     state={
         username: '',
         password: '',
-        loading: false,
-        email:'',
-        name:'',
-        birthday:''
+        loading: false
     }
 
     handleLogin = () =>{
-        this.setState({loading: true},()=>{
+        this.setState({loading: true},async ()=>{
             const userOb = {
                 "VUserId": this.state.username,
                 "VPassword": this.state.password
             }
-              post('/Authenticate', userOb)
+             await post('/Authenticate', userOb)
               .then(response => {
       
-                  this.setState({loading: false}, ()=>{
+                  this.setState({loading: false}, async ()=>{
                       var responseData = response.data;
+
                   if(responseData.isAuthenticated){
+
+                    const firstPair = [_LOGGED_IN, JSON.stringify(true)];
+                    const secondPair = [_LOGIN_TYPE, JSON.stringify("email")];
+                    const thirdPair = [_USER_PAYLOAD, JSON.stringify(responseData.userObj)];
+                    await SetMultiple([firstPair, secondPair, thirdPair]);
+
                       Toast.show({
                           type: 'success',
                           position: 'bottom',
@@ -43,6 +49,7 @@ export class LoginScreen extends Component {
                           })
                       this.props.navigation.navigate('HomeScreen', responseData.userObj);
                   }else{
+                      await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
                       Toast.show({
                           type: 'error',
                           position: 'bottom',
@@ -55,7 +62,8 @@ export class LoginScreen extends Component {
       
               })
               .catch(errorMessage => {   
-                  this.setState({loading: false}, ()=>{
+                  this.setState({loading: false}, async ()=>{
+                        await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
                       Toast.show({
                           type: 'error',
                           text1: 'Error!',
@@ -70,15 +78,22 @@ export class LoginScreen extends Component {
         BackHandler.exitApp();
     }
 
-    handleSignup = async (signupObj) =>{
+    handleSignupWithFacebook = async (signupObj) =>{
         this.setState({loading: true}, async ()=>{
             
             await post('/SocialLogin', signupObj)
                 .then(response => {
         
-                    this.setState({loading: false}, ()=>{
+                    this.setState({loading: false}, async ()=>{
                         var responseData = response.data;
                     if(responseData.isRegistrationSucceed && responseData.isAuthenticated){
+                        //await storeItem(_LOGGED_IN)
+                        /**Set Multiple value once */
+                        const firstPair = [_LOGGED_IN, JSON.stringify(true)];
+                        const secondPair = [_LOGIN_TYPE, JSON.stringify("fbook")];
+                        const thirdPair = [_USER_PAYLOAD, JSON.stringify(responseData.userObj)];
+                        await SetMultiple([firstPair, secondPair, thirdPair]);
+
                         Toast.show({
                             type: 'success',
                             position: 'bottom',
@@ -88,6 +103,7 @@ export class LoginScreen extends Component {
                             })
                         this.props.navigation.navigate('HomeScreen', responseData.userObj);
                     }else{
+
                         Toast.show({
                             type: 'error',
                             position: 'bottom',
@@ -139,7 +155,7 @@ export class LoginScreen extends Component {
                 "VFullName": result.name,
                 "DDateOfBirth": moment(result.birthday, "MM/DD/YYYY").format("YYYY-MM-DD")
             }
-            this.handleSignup(fbSignUpObj);
+            this.handleSignupWithFacebook(fbSignUpObj);
            
            /**TODO: 
              * 1# Get your info from graph API
@@ -166,6 +182,7 @@ export class LoginScreen extends Component {
                 });
           //throw 'User cancelled the login process';
           console.log('User cancelled the login process');
+          return;
         }
 
         // Once signed in, get the users AccesToken
@@ -183,6 +200,7 @@ export class LoginScreen extends Component {
                 });
           //throw 'Something went wrong obtaining access token';
           console.log("Something went wrong obtaining access token");
+          return;
         }
       
         // Create a Firebase credential with the AccessToken
@@ -200,6 +218,7 @@ export class LoginScreen extends Component {
     }
 
     componentWillUnmount() {
+        console.log('login screen unmounted.')
         removeAndroidBackButtonHandler();
       }
     

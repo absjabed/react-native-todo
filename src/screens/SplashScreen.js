@@ -1,15 +1,29 @@
 import React, { Component } from 'react'
 import {View, StyleSheet, Image} from 'react-native'
+import {retrieveItem, clearStore} from '../config/asyncStorageFunc'
+import {_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE, _ALL_TODO} from '../config/asyncStoreKey'
 import {COLORS} from '../styles/colors'
 
 
 export class SplashScreen extends Component {
     
-  componentDidMount=()=>{
+  componentDidMount= async ()=>{
     console.log("splash did mount.")
+    var isLoggedIn = await retrieveItem(_LOGGED_IN);
+    var userInfo = await retrieveItem(_USER_PAYLOAD);
+
     setTimeout(()=>{
-      this.props.navigation.navigate('LoginScreen');
+      if(isLoggedIn && userInfo != null){
+        this.props.navigation.navigate('HomeScreen', userInfo); 
+      }else{
+        clearStore([_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE]);
+        this.props.navigation.navigate('LoginScreen');
+      }
     },1500)
+  }
+
+  componentWillUnmount(){
+    console.log('splash screen unmounted.')
   }
     
     render() {

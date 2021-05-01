@@ -35,9 +35,15 @@ export class SignUpScreen extends Component {
             await post('/SignUp', signupUserOb)
                 .then(response => {
         
-                    this.setState({loading: false}, ()=>{
+                    this.setState({loading: false}, async ()=>{
                         var responseData = response.data;
                     if(responseData.isRegistrationSucceed && responseData.isAuthenticated){
+
+                        const firstPair = [_LOGGED_IN, JSON.stringify(true)];
+                        const secondPair = [_LOGIN_TYPE, JSON.stringify("email")];
+                        const thirdPair = [_USER_PAYLOAD, JSON.stringify(responseData.userObj)];
+                        await SetMultiple([firstPair, secondPair, thirdPair]);
+
                         Toast.show({
                             type: 'success',
                             position: 'bottom',
@@ -47,19 +53,23 @@ export class SignUpScreen extends Component {
                             })
                         this.props.navigation.navigate('HomeScreen', responseData.userObj);
                     }else{
-                        Toast.show({
-                            type: 'error',
-                            position: 'bottom',
-                            text1: 'Error!',
-                            text2: responseData.vMessage,
-                            visibilityTime: 1000,
-                            })
+                        this.setState({loading: false}, async ()=>{
+                            await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+                            Toast.show({
+                                type: 'error',
+                                position: 'bottom',
+                                text1: 'Error!',
+                                text2: responseData.vMessage,
+                                visibilityTime: 1000,
+                                })
+                        })
                     }
                     });
         
                 })
                 .catch(errorMessage => {   
-                    this.setState({loading: false}, ()=>{
+                    this.setState({loading: false}, async ()=>{
+                        await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
                         Toast.show({
                             type: 'error',
                             text1: 'Error!',
@@ -81,6 +91,7 @@ export class SignUpScreen extends Component {
     }
 
     componentWillUnmount() {
+        console.log('signup screen unmounted.')
         removeAndroidBackButtonHandler();
       }
 
