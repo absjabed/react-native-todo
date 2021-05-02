@@ -14,14 +14,16 @@ target 'mindforkProj' do
   end
 
   pod 'FBSDKLoginKit'
+  pod 'RNFBAuth', :path => '../node_modules/@react-native-firebase/auth'
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
-  use_flipper!
-  post_install do |installer|
-    flipper_post_install(installer)
-  end
+  # use_flipper!
+  # post_install do |installer|
+  #  flipper_post_install(installer)
+  # end
 end
 
 target 'mindforkProj-tvOS' do

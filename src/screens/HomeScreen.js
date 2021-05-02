@@ -248,19 +248,19 @@ export class HomeScreen extends Component {
     }
 
     /**When logout button clicked */
-    logout = () => {
+    logout = async () => {
       /** If user logged in with email then logout normally
        * and redirect to login screen
        */
       if(this.state.loginType === 'email'){
         /**Clear Storage */
-        clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+        await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
         this.props.navigation.navigate("LoginScreen");
       }else{
         /** If user logged in with facebook then logout with facebook login sdk 
          * and redirect to login screen
         */
-        clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+        await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
         LoginManager.logOut();
         this.props.navigation.navigate("LoginScreen");
       }
@@ -295,7 +295,7 @@ export class HomeScreen extends Component {
                             }} name="logout" size={30} color="#c6c6c7" />
                         </View>
                         <View>
-                            <Text style={{fontSize: 16, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .3}}>{this.state.userInfo.vFullName+""}</Text>
+                            <Text style={{fontSize: 16, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .3}}>{this.state.userInfo.vFullName +""}</Text>
                         </View>
                         <View>
                             <Icon onPress={()=> this.props.navigation.navigate("AddNewScreen", this.state.userInfo)} name="plus" size={30} color="#c6c6c7" />

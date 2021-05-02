@@ -13,6 +13,7 @@ const RNTextInput = (props) => {
       }}>
       <Text style={{fontSize:12, fontWeight:'bold', color:'#c3c3c5', letterSpacing: .3}}>{props.labelName}</Text>
       <TextInput
+        autoCapitalize={"none"}
         secureTextEntry={props.secureTextEntry}
         underlineColorAndroid="transparent"
         placeholder={props.placeholder}

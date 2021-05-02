@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   brandButtonText: {
     color: 'white',
-    //marginTop: 5,
+    marginTop: 5,
     fontWeight: 'bold',
     letterSpacing: 1,
     textAlignVertical:'center'
