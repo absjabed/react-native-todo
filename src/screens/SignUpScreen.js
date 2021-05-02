@@ -6,6 +6,8 @@ import Toast from 'react-native-toast-message';
 import ProgressDialog from '../utils/loader'
 import {COLORS} from '../styles/colors'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
+import {clearStore, SetMultiple} from '../config/asyncStorageFunc'
+import {_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE} from '../config/asyncStoreKey'
 const screenWidth = Math.round(Dimensions.get('window').width);
 import {RNButton} from '../components/RNButton'
 import RNMaskTextInput from '../components/RNMaskTextInput'
@@ -21,7 +23,7 @@ export class SignUpScreen extends Component {
     }
 
     /**Handling signup with normal email */
-    handleSignup = () =>{
+    handleSignup = async() =>{
         this.setState({loading: true}, async ()=>{
             const signupUserOb = {
                 "VFullName": this.state.fullName,
@@ -98,7 +100,7 @@ export class SignUpScreen extends Component {
 
     render() {
         return (
-            <View style={style.container}>
+            <SafeAreaView style={style.container}>
                 <ProgressDialog
                 loading={this.state.loading} />
                 <View style={{flex:.3, width: screenWidth, flexDirection:'column'}}>
@@ -118,20 +120,23 @@ export class SignUpScreen extends Component {
                     </View>
                 </View>
                 <View style={{flex: .7, marginTop:60}}>
-                <SafeAreaView style={{flex: 3}}>
+                <View style={{flex: 3}}>
                     <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white'}}>
                         <View style={{flex: 1, flexDirection:'column', width: screenWidth*0.9}}>
                             <RNTextInput
+                                style={{height:40}}
                                 value={this.state.fullName}
                                 onChangeText={(fullName) => this.setState({fullName})}
                                 labelName="FULL NAME"
                             />
                             <RNTextInput
+                                style={{height:40}}
                                 value={this.state.email}
                                 onChangeText={(email) => this.setState({email})}
                                 labelName="EMAIL"
                             />
                             <RNTextInput
+                                style={{height:40}}
                                 value={this.state.password}
                                 onChangeText={(password) => this.setState({password})}
                                 secureTextEntry
@@ -147,7 +152,7 @@ export class SignUpScreen extends Component {
                                     placeholderTextColor="#25be7b"
                                     value={this.state.birthday}
                                     onChangeText={(birthday) => this.setState({birthday})}
-                                    //style={{color:'#66666a'}}
+                                    style={{height:40}}
                                     />
                             {/* <RNTextInput
                                 value={this.state.birthday}
@@ -155,7 +160,7 @@ export class SignUpScreen extends Component {
                                 onChangeText={(birthday) => this.setState({birthday})}
                                 labelName="BIRTHDAY"
                             /> */}
-                            <RNButton title="Sign Up" customClick={this.handleSignup} />
+                            <RNButton style={{marginTop: 15}} title="Sign Up" customClick={this.handleSignup} />
                             <View style={{flex:1, flexDirection:'row', alignItems:'center', justifyContent: 'center'}}>
                                 <Text style={{fontSize: 12,textAlign: 'center',color: '#c3c3c5', fontWeight:'bold'}}>
                                 ALREADY HAVE AN ACCOUNT?
@@ -165,9 +170,9 @@ export class SignUpScreen extends Component {
                             </View>
                         </View>
                     </View>
-                </SafeAreaView>
                 </View>
-            </View>
+                </View>
+            </SafeAreaView>
         )
     }
 }

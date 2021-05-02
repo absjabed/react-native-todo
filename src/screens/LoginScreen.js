@@ -222,17 +222,18 @@ export class LoginScreen extends Component {
     
     render() {
         return (
-            <View style={style.container}>
+            <SafeAreaView style={style.container}>
                 <ProgressDialog
                 loading={this.state.loading} />
                 <View style={style.imageContainer}>
                     <Image source={require('../assets/images/icons8-checkmark-240.png')}></Image> 
                 </View>
                 <View style={{flex: 1}}>
-                <SafeAreaView style={{flex: 1}}>
+                <View style={{flex: 1}}>
                     <View style={style.formContainerParent}>
                         <View style={style.formContainer}>
                             <RNTextInput
+                                style={{height:40}}
                                 onChangeText={(username) => this.setState({username})}
                                 value={this.state.username}
                                 labelName="USERNAME"
@@ -241,6 +242,7 @@ export class LoginScreen extends Component {
                             <View style={{flex:1}}>
                                 <View style={{flex:1}}>
                                     <RNTextInput
+                                    style={{height:40}}
                                     value={this.state.password}
                                     onChangeText={(password) => this.setState({password})}
                                     labelName="PASSWORD"
@@ -277,9 +279,9 @@ export class LoginScreen extends Component {
                             </View>
                         </View>
                     </View>
-                </SafeAreaView>
                 </View>
-            </View>
+                </View>
+            </SafeAreaView>
         )
     }
 }

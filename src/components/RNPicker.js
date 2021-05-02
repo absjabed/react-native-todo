@@ -13,8 +13,9 @@ const RNPicker = (props) => {
       }}>
       <Text style={{fontSize:12, fontWeight:'bold', color:'#c3c3c5', letterSpacing: .3}}>{props.labelName}</Text>
       <Picker
+          mode={"dropdown"}
           selectedValue={props.selectedValue}
-          style={props.style}
+          style={{...props.style /*, borderColor:'red', borderWidth:2*/}}
           onValueChange={props.onValueChange}>
           {
               props.pickerData.map((item, index) => <Picker.Item key={index} label={item.label} value={item.value} />)

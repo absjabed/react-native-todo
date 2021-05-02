@@ -256,6 +256,7 @@ export class HomeScreen extends Component {
         /**Clear Storage */
         await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
         this.props.navigation.navigate("LoginScreen");
+        this.componentWillUnmount();
       }else{
         /** If user logged in with facebook then logout with facebook login sdk 
          * and redirect to login screen
@@ -263,7 +264,9 @@ export class HomeScreen extends Component {
         await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
         LoginManager.logOut();
         this.props.navigation.navigate("LoginScreen");
+        this.componentWillUnmount();
       }
+
       
     }
 
@@ -274,7 +277,7 @@ export class HomeScreen extends Component {
 
     render() {
         return (
-            <View style={style.container}>
+            <SafeAreaView style={style.container}>
                 <View style={{flex:.3, width: screenWidth, flexDirection:'column'}}>
                     <View style={{flex:1, flexDirection:'row', paddingTop: 18, paddingLeft:10, paddingRight:10, justifyContent:'space-between'}}>
                         <View>
@@ -303,7 +306,7 @@ export class HomeScreen extends Component {
                     </View>
                 </View>
                 <View style={{flex: 3.5, width: screenWidth}}>
-                        <SafeAreaView style={{
+                        <View style={{
                                     flex: 1,
                                     //paddingTop:5,
                                     backgroundColor:COLORS.darkWhite,
@@ -328,9 +331,9 @@ export class HomeScreen extends Component {
                                 <Text style={style.header}>{title}</Text>
                             )}
                             />
-                        </SafeAreaView>
+                        </View>
                 </View>
-            </View>
+            </SafeAreaView>
         )
     }
 }
