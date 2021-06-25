@@ -1,6 +1,6 @@
 import axios from 'axios';
 import handleError from './handleError';
-const SERVER_DOMAIN = 'http://localhost:5000/ApiData';
+const SERVER_DOMAIN = 'http://taskwebapi.somee.com/ApiData';
 
 const getHeaders = () => {
   return {

@@ -9,11 +9,9 @@ import SignUpScreen from './src/screens/SignUpScreen'
 import HomeScreen from './src/screens/HomeScreen'
 import AddNewScreen from './src/screens/AddNewScreen'
 import UpdateTaskScreen from './src/screens/UpdateTaskScreen'
-// import AuthNavigation from './src/navigation/AuthNavigation'
-// import StackNavigation from './src/navigation/StackNavigation'
-// import DrawerNavigation from './src/navigation/DrawerNavigation'
-const Stack = createStackNavigator();
 
+const Stack = createStackNavigator();
+/**App navigation setup */
 const App = () => {
   return (
       <>
@@ -111,9 +109,6 @@ const App = () => {
                     }}
                 />
           </Stack.Navigator>
-      {/* <AuthNavigation/>
-      <DrawerNavigation/>
-      <StackNavigation/> */}
     </NavigationContainer>
     <Toast ref={(ref) => Toast.setRef(ref)} />
     </>

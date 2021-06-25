@@ -46,6 +46,7 @@ export class UpdateTaskScreen extends Component {
         this.props.navigation.goBack();
     }
 
+    /**When update button clicked */
     UpdateTask = () =>{
 
         var colName = colors.filter(x => x.value === this.state.selectedColorValue)[0].label;
@@ -109,8 +110,7 @@ export class UpdateTaskScreen extends Component {
 
     componentDidMount = () =>{
         const todoRcvd = this.props.route.params;
-        console.log('#'+todoRcvd.vColorLabel.split('#')[1]);
-        //var colorObj = colors.filter(x=> x.label === )Teal#29cfbf
+        //console.log('#'+todoRcvd.vColorLabel.split('#')[1]);
         this.setState({
             receivedObject: todoRcvd,
             userId: todoRcvd.vUserId,
@@ -135,15 +135,17 @@ export class UpdateTaskScreen extends Component {
         //setTimeout(() => this.setState({ oldColor: '#fdd835' }), 1000);
     }
 
+    /**When color is changed */
     changeColor = colorRgb => this.setState({ oldColor: colorRgb },()=> console.log(colorRgb))
 
     componentWillUnmount() {
+        console.log('update screen unmounted.')
         removeAndroidBackButtonHandler();
       }
 
     render() {
         return (
-            <View style={style.container}>
+            <SafeAreaView style={style.container}>
                 <ProgressDialog
                 loading={this.state.loading} />
                 <View style={{flex:.1, width: screenWidth, flexDirection:'column'}}>
@@ -160,19 +162,19 @@ export class UpdateTaskScreen extends Component {
                     </View>
                 </View>
                 <View style={{flex: 1}}>
-                <SafeAreaView style={{flex: 3}}>
+                <View style={{flex: 3}}>
                     <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white'}}>
                         <View style={{flex: 1, flexDirection:'column', width: screenWidth}}>
                             <View style={{backgroundColor:'#f8f8f9',width: screenWidth}}>
                                 <View style={{marginLeft: 20, marginRight:20}}>
                                     <RNTextInput
-                                        style={{color:'#66666a'}}
+                                        style={{color:'#66666a', height:40}}
                                         onChangeText={(title) => this.setState({title})}
                                         labelName="TITLE"
                                         value = {this.state.title}
                                     />
                                     <RNTextInput
-                                        style={{color:'#66666a'}}
+                                        style={{color:'#66666a', height:40}}
                                         onChangeText={(description) => this.setState({description})}
                                         labelName="DESCRIPTION"
                                         value = {this.state.description}
@@ -192,7 +194,7 @@ export class UpdateTaskScreen extends Component {
                                     placeholderTextColor="#25be7b"
                                     value={this.state.date}
                                     onChangeText={(date) => this.setState({date})}
-                                    style={{color:'#66666a'}}
+                                    style={{color:'#66666a', height:40}}
                                     />
                                     <View >
                                         <View style={{flexDirection:'row', justifyContent:'space-between'}}>
@@ -208,7 +210,7 @@ export class UpdateTaskScreen extends Component {
                                             // {fromTime : moment(fromTime, 'HH:mma').format('HH:mma')}
                                             value={this.state.fromTime}
                                             onChangeText={(fromTime) => this.setState({fromTime})}
-                                            style={{color:'#66666a', width: screenWidth*.40}}
+                                            style={{color:'#66666a', width: screenWidth*.40, height:40}}
                                             />
                                             <RNMaskTextInput
                                             labelName="TO"
@@ -228,7 +230,7 @@ export class UpdateTaskScreen extends Component {
                                     
                                     <View>
                                             <RNTextInput
-                                            style={{color:'#66666a'}}
+                                            style={{color:'#66666a', height:40}}
                                             //placeholder="e.g: May 15, 1993"
                                             onChangeText={(location) => this.setState({location})}
                                             labelName="LOCATION"
@@ -239,7 +241,7 @@ export class UpdateTaskScreen extends Component {
 
                                     <View>
                                             <RNTextInput
-                                                style={{color:'#66666a', fontSize: 14}}
+                                                style={{color:'#66666a', fontSize: 14, height:40}}
                                                 //placeholder="e.g: May 15, 1993"
                                                 onChangeText={(notifyTime) => this.setState({notifyTime})}
                                                 value = {this.state.notifyTime}
@@ -252,7 +254,7 @@ export class UpdateTaskScreen extends Component {
                                         <RNPicker
                                             labelName="LABEL"
                                             selectedValue={this.state.selectedColorValue}
-                                            style={{height: 50, width: screenWidth*45, color:'#66666a'}}
+                                            style={{width: screenWidth, color:'#66666a', height:40}}
                                             pickerData = {colors}
                                             onValueChange={(item, itemIndex) =>
                                                 //console.log(item)
@@ -265,9 +267,9 @@ export class UpdateTaskScreen extends Component {
                             </View>
                         </View>
                     </View>
-                </SafeAreaView>
                 </View>
-            </View>
+                </View>
+            </SafeAreaView>
         )
     }
 }

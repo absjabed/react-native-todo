@@ -6,10 +6,14 @@ import Toast from 'react-native-toast-message';
 import IIcon from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../styles/colors'
 const screenWidth = Math.round(Dimensions.get('window').width);
+import { LoginManager } from 'react-native-fbsdk-next';
 import { jsonGroupByFunc } from '../utils/jsonGroupBy';
+import {retrieveItem, clearStore} from '../config/asyncStorageFunc'
+import {_LOGGED_IN, _USER_PAYLOAD, _LOGIN_TYPE} from '../config/asyncStoreKey'
 import { handleAndroidBackButton, removeAndroidBackButtonHandler } from '../utils/backHandler.config';
 const screenHeight = Math.round(Dimensions.get('window').height);
 
+/**Task Item render object */
 const Item = ({itemObj,navigation, doneEvent, deleteEvent}) => (
     <View style={{...style.item, borderLeftWidth:5, borderLeftColor: '#'+itemObj.vColorLabel.split('#')[1]}}>
       <View style={{flex:1, flexDirection:'row', justifyContent:'space-between'}}>
@@ -57,34 +61,45 @@ export class HomeScreen extends Component {
     state={
         refreshing: false,
         loading: false,
+        loginType:'',
         userInfo: [],
         SectionData: [],
-        PreData:[]
+        PreData:[],
+        _already_mounted: false,
     }
+
+    constructor(props) {
+      super(props)
+      console.log('home constructor called')
+      this.props.navigation.addListener('focus', () => {
+        /**If this screen already mounted then reload the task list */
+        if(this.state._already_mounted){
+            this.setState({refreshing: true},async()=>{
+              await this.loadUserTodos();
+          })
+        }
+    });
+  }
     
 
     navigateBack = () =>{
         this.props.navigation.goBack();
     }
 
-    componentDidMount = () =>{
-        const userRcvd = this.props.route.params;
+    componentDidMount = async() =>{
+        /**get data from local storage */
+        const userRcvd = await retrieveItem(_USER_PAYLOAD);
+        const loginType = await retrieveItem(_LOGIN_TYPE);
+        console.log('usr async',userRcvd)
 
-        //This confirms that screen will reload if refocused...
-        //works only for stack navigator...
-        this.focusListener = this.props.navigation.addListener('focus', () => {
-            this.setState({refreshing: true},()=>{
-              this.loadUserTodos();
-          })
-        });
-
-        this.setState({refreshing: true, userInfo: userRcvd},()=>{
-            this.loadUserTodos();
+        this.setState({refreshing: true, userInfo: userRcvd, loginType, _already_mounted: true},async ()=>{
+            await this.loadUserTodos();
         })
 
         handleAndroidBackButton(this.navigateBack);
     }
 
+    /**When Delete task clicked */
     handleTaskDelete=(obj)=>{
       var deleteReqObj ={
         "vUserId": this.state.userInfo.vUserId,
@@ -95,9 +110,9 @@ export class HomeScreen extends Component {
         'This task already done. Do you wanna Delete it Now?',
         [
           {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
-          {text: 'YES', onPress: () => this.setState({refreshing: true},()=>{
+          {text: 'YES', onPress: () => this.setState({refreshing: true},async()=>{
 
-            post('/DeleteTodo', deleteReqObj)
+            await post('/DeleteTodo', deleteReqObj)
             .then(response => {
               
               var responseData = response.data;
@@ -135,6 +150,7 @@ export class HomeScreen extends Component {
       );
     }
 
+    /**When Delete task clicked */
     handleTaskDone=(obj)=>{
       var doneReqObj ={
         "vUserId": this.state.userInfo.vUserId,
@@ -145,9 +161,9 @@ export class HomeScreen extends Component {
         'You want to mark this task as Done?',
         [
           {text: 'NO', onPress: () => console.log('NO Pressed'), style: 'cancel'},
-          {text: 'YES', onPress: () => this.setState({refreshing: true},()=>{
+          {text: 'YES', onPress: () => this.setState({refreshing: true},async()=>{
 
-            post('/DoneTodo', doneReqObj)
+            await post('/DoneTodo', doneReqObj)
             .then(response => {
               
               var responseData = response.data;
@@ -185,12 +201,13 @@ export class HomeScreen extends Component {
       );
     }
 
-    loadUserTodos=()=>{
+    /**Load all the tasks for logged in user */
+    loadUserTodos= async ()=>{
         const userObj = {
           "VUserId": this.state.userInfo.vUserId
         }
 
-        post('/UserTodos', userObj)
+        await post('/UserTodos', userObj)
               .then(response => {
                 
                 var responseData = response.data;
@@ -204,6 +221,7 @@ export class HomeScreen extends Component {
                           visibilityTime: 1000,
                           })
 
+                          /**Process task data in group wise format */
                           var processedData = jsonGroupByFunc(this.state.PreData, 'dDate');
 
                           this.setState({SectionData: processedData});
@@ -229,17 +247,37 @@ export class HomeScreen extends Component {
               });
     }
 
-    logout=()=>{
-      this.props.navigation.push("LoginScreen");
+    /**When logout button clicked */
+    logout = async () => {
+      /** If user logged in with email then logout normally
+       * and redirect to login screen
+       */
+      if(this.state.loginType === 'email'){
+        /**Clear Storage */
+        await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+        this.props.navigation.navigate("LoginScreen");
+        this.componentWillUnmount();
+      }else{
+        /** If user logged in with facebook then logout with facebook login sdk 
+         * and redirect to login screen
+        */
+        await clearStore([_LOGGED_IN, _LOGIN_TYPE, _USER_PAYLOAD]);
+        LoginManager.logOut();
+        this.props.navigation.navigate("LoginScreen");
+        this.componentWillUnmount();
+      }
+
+      
     }
 
     componentWillUnmount() {
+        console.log('home screen unmounted.');
         removeAndroidBackButtonHandler();
       }
 
     render() {
         return (
-            <View style={style.container}>
+            <SafeAreaView style={style.container}>
                 <View style={{flex:.3, width: screenWidth, flexDirection:'column'}}>
                     <View style={{flex:1, flexDirection:'row', paddingTop: 18, paddingLeft:10, paddingRight:10, justifyContent:'space-between'}}>
                         <View>
@@ -260,7 +298,7 @@ export class HomeScreen extends Component {
                             }} name="logout" size={30} color="#c6c6c7" />
                         </View>
                         <View>
-                            <Text style={{fontSize: 18, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .5}}>Home</Text>
+                            <Text style={{fontSize: 16, color:'#6a6a6e', fontWeight:'bold', letterSpacing: .3}}>{this.state.userInfo.vFullName +""}</Text>
                         </View>
                         <View>
                             <Icon onPress={()=> this.props.navigation.navigate("AddNewScreen", this.state.userInfo)} name="plus" size={30} color="#c6c6c7" />
@@ -268,7 +306,7 @@ export class HomeScreen extends Component {
                     </View>
                 </View>
                 <View style={{flex: 3.5, width: screenWidth}}>
-                        <SafeAreaView style={{
+                        <View style={{
                                     flex: 1,
                                     //paddingTop:5,
                                     backgroundColor:COLORS.darkWhite,
@@ -276,8 +314,8 @@ export class HomeScreen extends Component {
                                 }}>
                             <SectionList
                             sections={this.state.SectionData}
-                            refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={()=>  this.setState({refreshing: true},()=>{
-                                this.loadUserTodos();
+                            refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={()=>  this.setState({refreshing: true}, async()=>{
+                                await this.loadUserTodos();
                               // setTimeout(()=>{
                               //   this.setState({refreshing: false})
                               // },1500)
@@ -293,9 +331,9 @@ export class HomeScreen extends Component {
                                 <Text style={style.header}>{title}</Text>
                             )}
                             />
-                        </SafeAreaView>
+                        </View>
                 </View>
-            </View>
+            </SafeAreaView>
         )
     }
 }

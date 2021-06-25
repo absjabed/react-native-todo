@@ -1,3 +1,5 @@
+#import <Firebase.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import "AppDelegate.h"
 
 #import <React/RCTBridge.h>
@@ -27,6 +29,12 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [FBSDKApplicationDelegate initializeSDK:launchOptions]; // <- add this
+  if ([FIRApp defaultApp] == nil) {
+    [FIRApp configure];
+  }
+  [[FBSDKApplicationDelegate sharedInstance] application:application
+                           didFinishLaunchingWithOptions:launchOptions];
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
