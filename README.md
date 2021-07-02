@@ -67,7 +67,6 @@ If you want to run the project please proceed with the following instructions,
      ```
      yarn test -u 
      ```
-    
 ---
 
 ### Building the release apk using containerization (Docker)
@@ -121,9 +120,14 @@ If you want to build the release apk please proceed with the following instructi
      ```
      react-native-todo/android/app/build/outputs/apk/release/apk-release.apk
      ```
-  
----
+  ---
 
+
+## Application Demo
+### Application Video
+To see a live demo please visit: [App-Video-Link](https://youtu.be/U6VDpQ7oy3M)
+
+---
 
 ### App Screenshots (with usecases)
 Left             |  Right
